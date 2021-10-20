@@ -67,20 +67,16 @@ def p_statement_declare_int(p):
     '''
     names[p[2]] = {"type": "INT", "value": p[3]}
 
+def p_statement_declare_float(p):
+    'statement : FLOATDEC NAME is_assing'
+    names[p[2]] = {"type": "FLOAT", "value": p[3]}
 
 def p_is_assing(p):
     '''is_assing : "=" expression
                 | '''
     p[0] = 0
-    for pline in p:
-        print(pline)
-    if 3 in p:
+    if len(p) > 2:
         p[0] = p[2]
-
-
-def p_statement_declare_float(p):
-    'statement : FLOATDEC NAME'
-    names[p[2]] = {"type": "FLOAT", "value": 0}
 
 
 def p_statement_print(p):
