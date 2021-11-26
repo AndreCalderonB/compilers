@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 import ply.lex as lex
 
-literals = ['=', '+', '-', '*', '/', '(', ')','^','{','}','<','>',';']
+literals = ['=', '+', '-', '*', '/', '(', ')','^','{','}',';']
 
 reserved = {
     'int': 'INTDEC',
@@ -9,9 +9,7 @@ reserved = {
     'print': 'PRINT',
     # === Bools and logical operations
     'boolean': 'BOOLEAN',
-    'string': 'STRING'
-    'true': 'TRUE',
-    'false': 'FALSE',
+    'string': 'STRING',
     'and': 'AND',
     'or': 'OR',
     'if': 'IF',
@@ -21,7 +19,7 @@ reserved = {
 
 tokens = [
             #                   Equals, !Equals, Greater or Equal to, Less or Equal to
-             'INUMBER', 'FNUMBER', 'NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL'
+             'INUMBER', 'FNUMBER', 'NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL', 'GT', 'LT'
          ] + list(reserved.values())
 
 # Tokens
@@ -30,6 +28,17 @@ t_EQUAL = r'=='
 t_NOTEQUAL = r'!='
 t_GOEQUAL = r'>='
 t_LOEQUAL = r'<='
+t_GT = r'>'
+t_LT = r'<'
+t_ignore = " \t"
+
+def t_BOOLEAN(t):
+    r'true|false'
+    return t
+
+def t_STRING(t):
+    r'".*"'
+    return t
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -42,15 +51,10 @@ def t_FNUMBER(t):
     t.value = float(t.value)
     return t
 
-
 def t_INUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
-
-
-t_ignore = " \t"
-
 
 def t_newline(t):
     r'\n+'
@@ -81,6 +85,15 @@ precedence = (
 names = {}
 abstractTree = []
 
+class Node:
+    val=''
+    type=''
+    children=[]
+        
+    def __init__(self, val, type, children):
+        self.val = val
+        self.type = type
+        self.children = children
 
 def p_start(p):
     '''s : segment
@@ -88,7 +101,7 @@ def p_start(p):
     p[0] = p[1]
 
 def p_segment(p):
-    '''segment : conditional
+    '''segment : segment conditional
             | statement'''
     p[0] = p[1]
 
@@ -101,15 +114,17 @@ def p_statement_declare_bool(p):
         print("No se le puede asignar ese valor a un booleano")
 
 def p_statement_declare_str(p):
-    '''statement: STRING NAME is_assign'''
-    if(type(p[3]) == tuple):
-        names[p[2]] = {"type": "STRING", "value": p[3]}
+    '''statement : STRING NAME is_assign'''
+    names[p[2]] = {"type": "STRING", "value": p[3]}
+    print(names)
+
 
 def p_statement_declare_int(p):
     '''statement : INTDEC NAME is_assign
     '''
     if (type(p[3]) == int):
         names[p[2]] = {"type": "INT", "value": p[3]}
+        print(names)
     else: 
         print("No se le puede asignar ese valor a un int")
 
@@ -142,8 +157,8 @@ def p_expression_binop_comparison(p):
                   | expression '*' expression
                   | expression '/' expression
                   | expression '^' expression
-                  | expression '<' expression
-                  | expression '>' expression
+                  | expression LT expression
+                  | expression GT expression
                   | expression EQUAL expression
                   | expression NOTEQUAL expression
                   | expression GOEQUAL expression
@@ -152,7 +167,13 @@ def p_expression_binop_comparison(p):
                   | expression OR expression
                   '''
     if p[2] == '+':
-        p[0] = p[1] + p[3]
+        if(type(p[1]) != type(p[3])):
+            if(type(p[1]) == str):
+                p[0] = p[1] + str(p[3])
+            elif(type(p[3]) == str):
+                p[0] = str(p[1]) + p[3]
+        else: 
+            p[0] = p[1] + p[3]
     elif p[2] == '-':
         p[0] = p[1] - p[3]
     elif p[2] == '*':
@@ -177,8 +198,8 @@ def p_expression_binop_comparison(p):
         p[0] = (p[1] | p[3])   
 
 def p_logic_expressions(p):
-    '''logic_expression : expression '<' expression
-                  | expression '>' expression
+    '''logic_expression : expression LT expression
+                  | expression GT expression
                   | expression EQUAL expression
                   | expression NOTEQUAL expression
                   | expression GOEQUAL expression
@@ -215,14 +236,26 @@ def p_expression_val(p):
                 | FNUMBER
                 | BOOLEAN '''
     p[0] = p[1]
+
 def p_expression_string(p):
-    '''expression : STRING'''
+    '''expression : STRING '''
+    p[0] = p[1][1:len(p[1])-1]
+
+def p_expression_name(p):
+    "expression : NAME "
+    try:
+        p[0] = names[p[1]]["value"]
+    except LookupError:
+        print("Undefined name '%s'" % p[1])
+        p[0] = 0
 
 #========== Conditional Statements ================
 def p_if(p):
     '''conditional : IF '(' logic_expression ')' '{' s '}' elif else '''
-    if(p[3] == True):
+    if p[3] == True:
         p[0] = p[6]
+    else:
+        pass
 
 
 def p_elif(p):
@@ -234,16 +267,10 @@ def p_else(p):
         | ''' 
     if(len(p) > 1):
         p[0] = p[3]
+    else:
+        return
     
 #========================================
-
-def p_expression_name(p):
-    "expression : NAME"
-    try:
-        p[0] = names[p[1]]["value"]
-    except LookupError:
-        print("Undefined name '%s'" % p[1])
-        p[0] = 0
 
 def p_error(p):
     if p:
@@ -253,7 +280,7 @@ def p_error(p):
         print("Syntax error at EOF")
 
 
-parser = yacc.yacc()
+parser = yacc.yacc(debug=True)
 
 inputFile = open('input.txt', 'r')
 lines = inputFile.readlines()
