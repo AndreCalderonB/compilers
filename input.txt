@@ -1,4 +1,4 @@
-int a = 3
-string x = "Alo"
-print(a)
-print(a+x)
+int a = 1
+float b = 2.3
+float x = a < b
+print(x)

@@ -33,7 +33,7 @@ t_LT = r'<'
 t_ignore = " \t"
 
 def t_BOOLEAN(t):
-    r'true|false'
+    r'"True|False"'
     return t
 
 def t_STRING(t):
@@ -108,15 +108,15 @@ def p_segment(p):
 ##  Boolean Declaration 
 def p_statement_declare_bool(p):
     '''statement : BOOLEAN NAME is_assign'''
-    if(type(p[3]) == bool):
-        names[p[2]] = {"type": "BOOLEAN", "value": p[3]}
+    if(p[3] == "true"):
+        names[p[2]] = {"type": "BOOLEAN", "value": True}
     else: 
-        print("No se le puede asignar ese valor a un booleano")
+        names[p[2]] = {"type": "BOOLEAN", "value": False}
 
 def p_statement_declare_str(p):
     '''statement : STRING NAME is_assign'''
     names[p[2]] = {"type": "STRING", "value": p[3]}
-    print(names)
+    
 
 
 def p_statement_declare_int(p):
@@ -172,26 +172,84 @@ def p_expression_binop_comparison(p):
                 p[0] = p[1] + str(p[3])
             elif(type(p[3]) == str):
                 p[0] = str(p[1]) + p[3]
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) + (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] + float(p[3])     
         else: 
             p[0] = p[1] + p[3]
     elif p[2] == '-':
-        p[0] = p[1] - p[3]
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) - (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] - float(p[3])   
+        else:
+            p[0] = p[1] - p[3]
     elif p[2] == '*':
-        p[0] = p[1] * p[3]
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) * (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] * float(p[3])   
+        else:
+            p[0] = p[1] * p[3]
     elif p[2] == '/':
-        p[0] = p[1] / p[3]
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) / (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] / float(p[3])   
+        else:
+            p[0] = p[1] / p[3]
     elif p[2] == '<':
-        p[0] = p[1] < p[3]
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) < (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] < float(p[3])   
+        else:
+            p[0] = p[1] < p[3]
     elif p[2] == '>':
-        p[0] = p[1] > p[3]
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) > (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] > float(p[3])   
+        else:
+            p[0] = p[1] > p[3]
     elif p[2] == '<=':
-        p[0] = (p[1] <= p[3])
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) <= (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] <= float(p[3])   
+        else:
+            p[0] = p[1] <= p[3]
     elif p[2] == '>=':
-        p[0] = (p[1] >= p[3])
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) >= (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] >= float(p[3])   
+        else:
+            p[0] = p[1] >= p[3]
     elif p[2] == '==':
-        p[0] = (p[1] == p[3])
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) == (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] == float(p[3])   
+        else:
+            p[0] = p[1] == p[3]
     elif p[2] == '!=':
-        p[0] = (p[1] != p[3])
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) != (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] != float(p[3])   
+        else:
+            p[0] = p[1] != p[3]
     elif p[2] == 'and':
         p[0] = (p[1] & p[3])
     elif p[2] == 'or':
