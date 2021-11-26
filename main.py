@@ -14,7 +14,9 @@ reserved = {
     'or': 'OR',
     'if': 'IF',
     'elif': 'ELIF',
-    'else': 'ELSE'
+    'else': 'ELSE',
+    '(': 'LPAREN',
+    ')': 'RPAREN'
 }
 
 tokens = [
@@ -74,8 +76,9 @@ lexer = lex.lex()
 #left: left side first, right: right side first, nonassoc: no chaining operations
 #position in precedence defines what goes first
 precedence = (
-    ('left', '*', '/'),
+    
     ('left', '+', '-'),
+    ('left', '*', '/'),
     # Note to self: UMINUS -> Multiplying something by -1
     ('right', 'UMINUS'),
     
@@ -98,10 +101,11 @@ class Node:
 def p_start(p):
     '''s : segment
         | segment s'''
+    print("start")
     p[0] = p[1]
 
 def p_segment(p):
-    '''segment : segment conditional
+    '''segment : conditional
             | statement'''
     p[0] = p[1]
 
@@ -122,9 +126,9 @@ def p_statement_declare_str(p):
 def p_statement_declare_int(p):
     '''statement : INTDEC NAME is_assign
     '''
+    print("declare_int", p[3])
     if (type(p[3]) == int):
         names[p[2]] = {"type": "INT", "value": p[3]}
-        print(names)
     else: 
         print("No se le puede asignar ese valor a un int")
 
@@ -136,8 +140,10 @@ def p_statement_declare_float(p):
 def p_is_assign(p):
     '''is_assign : "=" expression
                 | '''
+    print("is_assign")
     p[0] = 0
     if (len(p) > 2):
+        
         p[0] = p[2]
 
 def p_statement_print(p):
@@ -166,6 +172,8 @@ def p_expression_binop_comparison(p):
                   | expression AND expression
                   | expression OR expression
                   '''
+    print(type(p[1]),type(p[3]))
+    print((p[1]),(p[3]))
     if p[2] == '+':
         if(type(p[1]) != type(p[3])):
             if(type(p[1]) == str):
@@ -196,7 +204,7 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] * float(p[3])   
         else:
-            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
                print("Operation not available for these data types")
             else:
                  p[0] = p[1] * p[3]
@@ -207,7 +215,7 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] / float(p[3])   
         else:
-            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
                print("Operation not available for these data types")
             else:
                  p[0] = p[1] / p[3]
@@ -218,7 +226,7 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] ** float(p[3])   
         else: 
-            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
                print("Operation not available for these data types")
             else:
                  p[0] = p[1] ** p[3]
@@ -330,23 +338,32 @@ def p_expression_name(p):
 #========== Conditional Statements ================
 def p_if(p):
     '''conditional : IF '(' logic_expression ')' '{' s '}' elif else '''
+    print("p_if",(p[3] == True))
     if p[3] == True:
         p[0] = p[6]
     else:
-        pass
+        p[0] = p[8]
 
 
 def p_elif(p):
     '''elif : ELIF '(' logic_expression ')' '{' s '}' else
         | '''
-
+    print("p_elif")
+    if(len(p) >4):
+        if(p[3] == True):
+            p[0] = p[6]
+        else:
+            p[0] = p[8]
+    else:
+        p[0] = ()
 def p_else(p): 
     '''else : ELSE '{' s '}' 
         | ''' 
+    print("p_else")
     if(len(p) > 1):
         p[0] = p[3]
     else:
-        return
+        p[0] = ()
     
 #========================================
 
