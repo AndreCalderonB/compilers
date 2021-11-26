@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'left+-left*/rightUMINUSFLOATDEC FNUMBER INTDEC INUMBER NAME PRINTstatement : INTDEC NAME is_assing\n    statement : FLOATDEC NAME is_assingis_assing : "=" expression\n                | statement : PRINT \'(\' expression \')\' statement : NAME "=" expressionstatement : expressionexpression : expression \'+\' expression\n                  | expression \'-\' expression\n                  | expression \'*\' expression\n                  | expression \'/\' expressionexpression : \'-\' expression %prec UMINUSexpression : \'(\' expression \')\'expression : INUMBERexpression : FNUMBERexpression : NAME'
+_lr_signature = 'left*/left+-left^nonassoc<>GOEQUALLOEQUALleftANDORrightUMINUSAND BOOLEAN ELIF ELSE EQUAL FALSE FLOATDEC FNUMBER GOEQUAL IF INTDEC INUMBER LOEQUAL NAME NOTEQUAL OR PRINT TRUEstatement : BOOLEAN NAME is_assignstatement : INTDEC NAME is_assign\n    statement : FLOATDEC NAME is_assignis_assign : "=" expression\n                | statement : PRINT \'(\' expression \')\' statement : NAME "=" expressionexpression : expression \'+\' expression\n                  | expression \'-\' expression\n                  | expression \'*\' expression\n                  | expression \'/\' expression\n                  | expression \'^\' expression\n                  | expression \'<\' expression\n                  | expression \'>\' expression\n                  | expression EQUAL expression\n                  | expression NOTEQUAL expression\n                  | expression AND expression\n                  expression : \'-\' expression %prec UMINUSexpression : \'(\' expression \')\'expression : INUMBER\n                | FNUMBER\n                | TRUE\n                | FALSE statement : if elif elseif : IF \'(\' expression \')\' \'{\' statement \'}\' elif : ELIF \'(\' expression \')\' \'{\' statement \'}\' elif \n            | else : ELSE \'{\' statement \'}\' \n        |expression : NAME'
     
-_lr_action_items = {'INTDEC':([0,],[2,]),'FLOATDEC':([0,],[4,]),'PRINT':([0,],[5,]),'NAME':([0,2,4,6,8,12,14,17,18,19,20,23,],[3,11,13,16,16,16,16,16,16,16,16,16,]),'-':([0,3,6,7,8,9,10,12,14,15,16,17,18,19,20,21,23,24,26,27,28,29,30,31,32,],[8,-16,8,18,8,-14,-15,8,8,18,-16,8,8,8,8,-12,8,18,18,-13,-8,-9,-10,-11,18,]),'(':([0,5,6,8,12,14,17,18,19,20,23,],[6,14,6,6,6,6,6,6,6,6,6,]),'INUMBER':([0,6,8,12,14,17,18,19,20,23,],[9,9,9,9,9,9,9,9,9,9,]),'FNUMBER':([0,6,8,12,14,17,18,19,20,23,],[10,10,10,10,10,10,10,10,10,10,]),'$end':([1,3,7,9,10,11,13,16,21,22,24,25,27,28,29,30,31,32,33,],[0,-16,-7,-14,-15,-4,-4,-16,-12,-1,-6,-2,-13,-8,-9,-10,-11,-3,-5,]),'=':([3,11,13,],[12,23,23,]),'+':([3,7,9,10,15,16,21,24,26,27,28,29,30,31,32,],[-16,17,-14,-15,17,-16,-12,17,17,-13,-8,-9,-10,-11,17,]),'*':([3,7,9,10,15,16,21,24,26,27,28,29,30,31,32,],[-16,19,-14,-15,19,-16,-12,19,19,-13,19,19,-10,-11,19,]),'/':([3,7,9,10,15,16,21,24,26,27,28,29,30,31,32,],[-16,20,-14,-15,20,-16,-12,20,20,-13,20,20,-10,-11,20,]),')':([9,10,15,16,21,26,27,28,29,30,31,],[-14,-15,27,-16,-12,33,-13,-8,-9,-10,-11,]),}
+_lr_action_items = {'BOOLEAN':([0,48,64,66,],[2,2,2,2,]),'INTDEC':([0,48,64,66,],[4,4,4,4,]),'FLOATDEC':([0,48,64,66,],[5,5,5,5,]),'PRINT':([0,48,64,66,],[6,6,6,6,]),'NAME':([0,2,4,5,10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,48,64,66,],[3,9,11,12,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,3,3,3,]),'IF':([0,48,64,66,],[8,8,8,8,]),'$end':([1,7,9,11,12,14,17,19,20,23,24,25,26,27,28,30,34,45,47,51,52,53,54,55,56,57,58,59,60,61,65,69,70,71,],[0,-27,-5,-5,-5,-29,-1,-30,-7,-20,-21,-22,-23,-2,-3,-24,-4,-18,-6,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-19,-28,-25,-27,-26,]),'=':([3,9,11,12,],[10,18,18,18,]),'(':([6,8,10,13,15,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[13,16,22,22,32,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,]),'ELIF':([7,69,70,],[15,-25,15,]),'ELSE':([7,14,69,70,71,],[-27,31,-25,-27,-26,]),'}':([7,9,11,12,14,17,19,20,23,24,25,26,27,28,30,34,45,47,51,52,53,54,55,56,57,58,59,60,61,62,65,67,68,69,70,71,],[-27,-5,-5,-5,-29,-1,-30,-7,-20,-21,-22,-23,-2,-3,-24,-4,-18,-6,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-19,65,-28,69,70,-25,-27,-26,]),'-':([10,13,16,18,19,20,21,22,23,24,25,26,29,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[21,21,21,21,-30,36,21,21,-20,-21,-22,-23,36,21,36,36,21,21,21,21,21,21,21,21,21,21,-18,36,36,-8,-9,36,36,-12,-13,-14,36,36,-17,-19,]),'INUMBER':([10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,]),'FNUMBER':([10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,]),'TRUE':([10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,]),'FALSE':([10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,]),'+':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,35,-20,-21,-22,-23,35,35,35,-18,35,35,-8,-9,35,35,-12,-13,-14,35,35,-17,-19,]),'*':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,37,-20,-21,-22,-23,37,37,37,-18,37,37,-8,-9,-10,-11,-12,-13,-14,37,37,-17,-19,]),'/':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,38,-20,-21,-22,-23,38,38,38,-18,38,38,-8,-9,-10,-11,-12,-13,-14,38,38,-17,-19,]),'^':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,39,-20,-21,-22,-23,39,39,39,-18,39,39,39,39,39,39,-12,-13,-14,39,39,-17,-19,]),'<':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,40,-20,-21,-22,-23,40,40,40,-18,40,40,40,40,40,40,40,None,None,40,40,-17,-19,]),'>':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,41,-20,-21,-22,-23,41,41,41,-18,41,41,41,41,41,41,41,None,None,41,41,-17,-19,]),'EQUAL':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,42,-20,-21,-22,-23,42,42,42,-18,42,42,-8,-9,-10,-11,-12,-13,-14,42,42,-17,-19,]),'NOTEQUAL':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,43,-20,-21,-22,-23,43,43,43,-18,43,43,-8,-9,-10,-11,-12,-13,-14,43,43,-17,-19,]),'AND':([19,20,23,24,25,26,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,44,-20,-21,-22,-23,44,44,44,-18,44,44,44,44,44,44,44,44,44,44,44,-17,-19,]),')':([19,23,24,25,26,29,33,45,46,49,51,52,53,54,55,56,57,58,59,60,61,],[-30,-20,-21,-22,-23,47,50,-18,61,63,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-19,]),'{':([31,50,63,],[48,64,66,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'statement':([0,],[1,]),'expression':([0,6,8,12,14,17,18,19,20,23,],[7,15,21,24,26,28,29,30,31,32,]),'is_assing':([11,13,],[22,25,]),}
+_lr_goto_items = {'statement':([0,48,64,66,],[1,62,67,68,]),'if':([0,48,64,66,],[7,7,7,7,]),'elif':([7,70,],[14,71,]),'is_assign':([9,11,12,],[17,27,28,]),'expression':([10,13,16,18,21,22,32,35,36,37,38,39,40,41,42,43,44,],[20,29,33,34,45,46,49,51,52,53,54,55,56,57,58,59,60,]),'else':([14,],[30,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,20 +27,34 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> statement","S'",1,None,None,None),
-  ('statement -> INTDEC NAME is_assing','statement',3,'p_statement_declare_int','main.py',66),
-  ('statement -> FLOATDEC NAME is_assing','statement',3,'p_statement_declare_float','main.py',71),
-  ('is_assing -> = expression','is_assing',2,'p_is_assing','main.py',75),
-  ('is_assing -> <empty>','is_assing',0,'p_is_assing','main.py',76),
-  ('statement -> PRINT ( expression )','statement',4,'p_statement_print','main.py',83),
-  ('statement -> NAME = expression','statement',3,'p_statement_assign','main.py',88),
-  ('statement -> expression','statement',1,'p_statement_expr','main.py',95),
-  ('expression -> expression + expression','expression',3,'p_expression_binop','main.py',100),
-  ('expression -> expression - expression','expression',3,'p_expression_binop','main.py',101),
-  ('expression -> expression * expression','expression',3,'p_expression_binop','main.py',102),
-  ('expression -> expression / expression','expression',3,'p_expression_binop','main.py',103),
-  ('expression -> - expression','expression',2,'p_expression_uminus','main.py',111),
-  ('expression -> ( expression )','expression',3,'p_expression_group','main.py',116),
-  ('expression -> INUMBER','expression',1,'p_expression_inumber','main.py',121),
-  ('expression -> FNUMBER','expression',1,'p_expression_fnumber','main.py',126),
-  ('expression -> NAME','expression',1,'p_expression_name','main.py',131),
+  ('statement -> BOOLEAN NAME is_assign','statement',3,'p_statement_declare_bool','main.py',91),
+  ('statement -> INTDEC NAME is_assign','statement',3,'p_statement_declare_int','main.py',95),
+  ('statement -> FLOATDEC NAME is_assign','statement',3,'p_statement_declare_float','main.py',102),
+  ('is_assign -> = expression','is_assign',2,'p_is_assign','main.py',106),
+  ('is_assign -> <empty>','is_assign',0,'p_is_assign','main.py',107),
+  ('statement -> PRINT ( expression )','statement',4,'p_statement_print','main.py',114),
+  ('statement -> NAME = expression','statement',3,'p_statement_assign','main.py',118),
+  ('expression -> expression + expression','expression',3,'p_expression_binop','main.py',124),
+  ('expression -> expression - expression','expression',3,'p_expression_binop','main.py',125),
+  ('expression -> expression * expression','expression',3,'p_expression_binop','main.py',126),
+  ('expression -> expression / expression','expression',3,'p_expression_binop','main.py',127),
+  ('expression -> expression ^ expression','expression',3,'p_expression_binop','main.py',128),
+  ('expression -> expression < expression','expression',3,'p_expression_binop','main.py',129),
+  ('expression -> expression > expression','expression',3,'p_expression_binop','main.py',130),
+  ('expression -> expression EQUAL expression','expression',3,'p_expression_binop','main.py',131),
+  ('expression -> expression NOTEQUAL expression','expression',3,'p_expression_binop','main.py',132),
+  ('expression -> expression AND expression','expression',3,'p_expression_binop','main.py',133),
+  ('expression -> - expression','expression',2,'p_expression_uminus','main.py',156),
+  ('expression -> ( expression )','expression',3,'p_expression_group','main.py',160),
+  ('expression -> INUMBER','expression',1,'p_expression_val','main.py',164),
+  ('expression -> FNUMBER','expression',1,'p_expression_val','main.py',165),
+  ('expression -> TRUE','expression',1,'p_expression_val','main.py',166),
+  ('expression -> FALSE','expression',1,'p_expression_val','main.py',167),
+  ('statement -> if elif else','statement',3,'p_statement_conditional','main.py',174),
+  ('if -> IF ( expression ) { statement }','if',7,'p_if','main.py',178),
+  ('elif -> ELIF ( expression ) { statement } elif','elif',8,'p_elif','main.py',182),
+  ('elif -> <empty>','elif',0,'p_elif','main.py',183),
+  ('else -> ELSE { statement }','else',4,'p_else','main.py',187),
+  ('else -> <empty>','else',0,'p_else','main.py',188),
+  ('expression -> NAME','expression',1,'p_expression_name','main.py',194),
 ]

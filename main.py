@@ -67,13 +67,17 @@ lexer = lex.lex()
 
 # Parsing rules
 
-#left, right, nonassoc - nonassoc = no chaining operations
+#left: left side first, right: right side first, nonassoc: no chaining operations
+#position in precedence defines what goes first
 precedence = (
-    ('left', '+', '-'),
     ('left', '*', '/'),
+    ('left', '+', '-'),
+    ('left','^'),
+    ('nonassoc','<','>','GOEQUAL','LOEQUAL'),
+    ('left','AND', 'OR'),
     # Note to self: UMINUS -> Multiplying something by -1
     ('right', 'UMINUS'),
-    ('')
+    
 )
 
 # dictionary of names
@@ -81,27 +85,34 @@ names = {}
 abstractTree = []
 
 
+
+##  Boolean Declaration 
+def p_statement_declare_bool(p):
+    '''statement : BOOLEAN NAME is_assign'''
+    names[p[2]] = {"type": "BOOLEAN", "value": p[3]}
+
 def p_statement_declare_int(p):
-    '''statement : INTDEC NAME is_assing
+    '''statement : INTDEC NAME is_assign
     '''
     names[p[2]] = {"type": "INT", "value": p[3]}
 
+    
+
 def p_statement_declare_float(p):
-    'statement : FLOATDEC NAME is_assing'
+    'statement : FLOATDEC NAME is_assign'
     names[p[2]] = {"type": "FLOAT", "value": p[3]}
 
-def p_is_assing(p):
-    '''is_assing : "=" expression
+def p_is_assign(p):
+    '''is_assign : "=" expression
                 | '''
     p[0] = 0
-    if len(p) > 2:
+    
+    if (len(p) > 2):
         p[0] = p[2]
-
 
 def p_statement_print(p):
     '''statement : PRINT '(' expression ')' '''
     print(p[3])
-
 
 def p_statement_assign(p):
     'statement : NAME "=" expression'
@@ -109,42 +120,75 @@ def p_statement_assign(p):
         print("You must declare a variable before using it")
     names[p[1]]["value"] = p[3]
 
-
-def p_statement_expr(p):
-    'statement : expression'
-    # print(p[1])
-
-
 def p_expression_binop(p):
     '''expression : expression '+' expression
                   | expression '-' expression
                   | expression '*' expression
-                  | expression '/' expression'''
+                  | expression '/' expression
+                  | expression '^' expression
+                  | expression '<' expression
+                  | expression '>' expression
+                  | expression EQUAL expression
+                  | expression NOTEQUAL expression
+                  | expression AND expression
+                  '''
     if p[2] == '+':
         p[0] = p[1] + p[3]
     elif p[2] == '-':
         p[0] = p[1] - p[3]
-
+    elif p[2] == '*':
+        p[0] = p[1] * p[3]
+    elif p[2] == '/':
+        p[0] = p[1] / p[3]
+    elif p[2] == '<':
+        p[0] = p[1] < p[3]
+    elif p[2] == '>':
+        p[0] = p[1] > p[3]
+    elif p[2] == '==':
+        p[0] = (p[1] == p[3])
+    elif p[2] == '!=':
+        p[0] = (p[1] != p[3])
+    elif p[2] == 'and':
+        p[0] = (p[1] & p[3])
+    
 
 def p_expression_uminus(p):
     "expression : '-' expression %prec UMINUS"
     p[0] = -p[2]
 
-
 def p_expression_group(p):
     "expression : '(' expression ')'"
     p[0] = p[2]
 
-
-def p_expression_inumber(p):
-    "expression : INUMBER"
+def p_expression_val(p):
+    '''expression : INUMBER
+                | FNUMBER
+                | TRUE
+                | FALSE '''
     p[0] = p[1]
 
 
-def p_expression_fnumber(p):
-    "expression : FNUMBER"
-    p[0] = p[1]
+#========== Conditional Statements ================
 
+def p_statement_conditional(p):
+    '''statement : if elif else'''
+    p[0] = ('if', p[1], p[2], p[3])
+
+def p_if(p):
+    '''if : IF '(' expression ')' '{' statement '}' '''
+    p[0] = ('if', p[3], p[6])
+
+def p_elif(p):
+    '''elif : ELIF '(' expression ')' '{' statement '}' elif 
+            | '''
+    p[0] = ('elif', p[3], p[6], p[8]) if len(p) > 2 else ()
+
+def p_else(p):
+    '''else : ELSE '{' statement '}' 
+        |'''
+    p[0] = ('else', p[3]) if len(p) > 2 else ()
+
+#========================================
 
 def p_expression_name(p):
     "expression : NAME"
@@ -153,7 +197,6 @@ def p_expression_name(p):
     except LookupError:
         print("Undefined name '%s'" % p[1])
         p[0] = 0
-
 
 def p_error(p):
     if p:

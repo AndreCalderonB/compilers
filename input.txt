@@ -1,4 +1,6 @@
 int a = 2
 print(a)
-float b= 2.5
+float b = 2.5
 print(b)
+if ((a*5 == b*4) and (a < b)) { print(b) }
+print(x)
