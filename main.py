@@ -1,19 +1,35 @@
 import ply.yacc as yacc
 import ply.lex as lex
 
-literals = ['=', '+', '-', '*', '/', '(', ')']
+literals = ['=', '+', '-', '*', '/', '(', ')','^','{','}','<','>',';']
+
 reserved = {
     'int': 'INTDEC',
     'float': 'FLOATDEC',
-    'print': 'PRINT'
+    'print': 'PRINT',
+    # === Bools and logical operations
+    'boolean': 'BOOLEAN',
+    'true': 'TRUE',
+    'false': 'FALSE',
+    'and': 'AND',
+    'or': 'OR',
+    'if': 'IF',
+    'elif': 'ELIF',
+    'else': 'ELSE'
 }
 
 tokens = [
-             'INUMBER', 'FNUMBER', 'NAME'
+            #                   Equals, !Equals, Greater or Equal to, Less or Equal to
+             'INUMBER', 'FNUMBER', 'NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL'
          ] + list(reserved.values())
 
 
 # Tokens
+
+t_EQUAL = r'=='
+t_NOTEQUAL = r'!='
+t_GOEQUAL = r'>='
+t_LOEQUAL = r'<='
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -51,10 +67,13 @@ lexer = lex.lex()
 
 # Parsing rules
 
+#left, right, nonassoc - nonassoc = no chaining operations
 precedence = (
     ('left', '+', '-'),
     ('left', '*', '/'),
+    # Note to self: UMINUS -> Multiplying something by -1
     ('right', 'UMINUS'),
+    ('')
 )
 
 # dictionary of names
