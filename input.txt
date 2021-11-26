@@ -1,4 +1,4 @@
-int a = 2
-print(a)
-float b= 2.5
-print(b)
+int a = 1
+float b = 2.3
+float x = a < b
+print(x)
