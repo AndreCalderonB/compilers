@@ -23,7 +23,6 @@ tokens = [
              'INUMBER', 'FNUMBER', 'NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL'
          ] + list(reserved.values())
 
-
 # Tokens
 
 t_EQUAL = r'=='
@@ -116,6 +115,7 @@ def p_statement_print(p):
 
 def p_statement_assign(p):
     'statement : NAME "=" expression'
+
     if p[1] not in names:
         print("You must declare a variable before using it")
     names[p[1]]["value"] = p[3]
@@ -131,6 +131,7 @@ def p_expression_binop(p):
                   | expression EQUAL expression
                   | expression NOTEQUAL expression
                   | expression AND expression
+                  | expression OR expression
                   '''
     if p[2] == '+':
         p[0] = p[1] + p[3]
@@ -150,14 +151,42 @@ def p_expression_binop(p):
         p[0] = (p[1] != p[3])
     elif p[2] == 'and':
         p[0] = (p[1] & p[3])
-    
+    elif p[2] == 'or':
+        p[0] = (p[1] | p[3])   
 
+def p_logic_expressions(p):
+    '''logic_expression : expression '<' expression
+                  | expression '>' expression
+                  | expression EQUAL expression
+                  | expression NOTEQUAL expression
+                  | expression GOEQUAL expression
+                  | expression LOEQUAL expression
+                  | expression AND expression
+                  | expression OR expression'''
+    if p[2] == '<':
+        p[0] = p[1] < p[3]
+    elif p[2] == '>':
+        p[0] = p[1] > p[3]
+    elif p[2] == '==':
+        p[0] = (p[1] == p[3])
+    elif p[2] == '<=':
+        p[0] = (p[1] <= p[3])
+    elif p[2] == '>=':
+        p[0] = (p[1] >= p[3])
+    elif p[2] == '!=':
+        p[0] = (p[1] != p[3])
+    elif p[2] == 'and':
+        p[0] = (p[1] & p[3])
+    elif p[2] == 'or':
+        p[0] = (p[1] | p[3])
+        
 def p_expression_uminus(p):
     "expression : '-' expression %prec UMINUS"
     p[0] = -p[2]
 
 def p_expression_group(p):
     "expression : '(' expression ')'"
+    print("Expression",p[2])
     p[0] = p[2]
 
 def p_expression_val(p):
@@ -169,25 +198,21 @@ def p_expression_val(p):
 
 
 #========== Conditional Statements ================
-
-def p_statement_conditional(p):
-    '''statement : if elif else'''
-    p[0] = ('if', p[1], p[2], p[3])
+def p_conditional_statement(p):
+    
 
 def p_if(p):
-    '''if : IF '(' expression ')' '{' statement '}' '''
-    p[0] = ('if', p[3], p[6])
+    '''statement : IF '(' expression ')' '{' block '}' elif else'''
+
 
 def p_elif(p):
-    '''elif : ELIF '(' expression ')' '{' statement '}' elif 
-            | '''
-    p[0] = ('elif', p[3], p[6], p[8]) if len(p) > 2 else ()
-
-def p_else(p):
-    '''else : ELSE '{' statement '}' 
+    '''elif : ELIF '(' expression ')' '{' statement '}' elif else
         |'''
-    p[0] = ('else', p[3]) if len(p) > 2 else ()
 
+def p_else(p): 
+    '''else : ELSE '{' statement '}'
+        |''' 
+    
 #========================================
 
 def p_expression_name(p):
@@ -201,7 +226,7 @@ def p_expression_name(p):
 def p_error(p):
     if p:
         print(p)
-        print("Syntax error at line '%s' character '%s'" % (p.lexpos, p.lineno))
+        print("Syntax error at line '%s' character '%s'" % (p.lineno,p.lexpos))
     else:
         print("Syntax error at EOF")
 

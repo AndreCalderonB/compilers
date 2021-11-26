@@ -4,7 +4,6 @@ Unused terminals:
 
     GOEQUAL
     LOEQUAL
-    OR
 
 Grammar
 
@@ -26,62 +25,64 @@ Rule 14    expression -> expression > expression
 Rule 15    expression -> expression EQUAL expression
 Rule 16    expression -> expression NOTEQUAL expression
 Rule 17    expression -> expression AND expression
-Rule 18    expression -> - expression
-Rule 19    expression -> ( expression )
-Rule 20    expression -> INUMBER
-Rule 21    expression -> FNUMBER
-Rule 22    expression -> TRUE
-Rule 23    expression -> FALSE
-Rule 24    statement -> if elif else
-Rule 25    if -> IF ( expression ) { statement }
-Rule 26    elif -> ELIF ( expression ) { statement } elif
-Rule 27    elif -> <empty>
-Rule 28    else -> ELSE { statement }
-Rule 29    else -> <empty>
-Rule 30    expression -> NAME
+Rule 18    expression -> expression OR expression
+Rule 19    expression -> - expression
+Rule 20    expression -> ( expression )
+Rule 21    expression -> INUMBER
+Rule 22    expression -> FNUMBER
+Rule 23    expression -> TRUE
+Rule 24    expression -> FALSE
+Rule 25    statement -> if elif else
+Rule 26    if -> IF ( expression ) { statement } elif else
+Rule 27    if -> <empty>
+Rule 28    elif -> ELIF ( expression ) { statement } elif else
+Rule 29    elif -> <empty>
+Rule 30    else -> ELSE { statement }
+Rule 31    else -> <empty>
+Rule 32    expression -> NAME
 
 Terminals, with rules where they appear
 
-(                    : 6 19 25 26
-)                    : 6 19 25 26
+(                    : 6 20 26 28
+)                    : 6 20 26 28
 *                    : 10
 +                    : 8
--                    : 9 18
+-                    : 9 19
 /                    : 11
 <                    : 13
 =                    : 4 7
 >                    : 14
 AND                  : 17
 BOOLEAN              : 1
-ELIF                 : 26
-ELSE                 : 28
+ELIF                 : 28
+ELSE                 : 30
 EQUAL                : 15
-FALSE                : 23
+FALSE                : 24
 FLOATDEC             : 3
-FNUMBER              : 21
+FNUMBER              : 22
 GOEQUAL              : 
-IF                   : 25
+IF                   : 26
 INTDEC               : 2
-INUMBER              : 20
+INUMBER              : 21
 LOEQUAL              : 
-NAME                 : 1 2 3 7 30
+NAME                 : 1 2 3 7 32
 NOTEQUAL             : 16
-OR                   : 
+OR                   : 18
 PRINT                : 6
-TRUE                 : 22
+TRUE                 : 23
 ^                    : 12
 error                : 
-{                    : 25 26 28
-}                    : 25 26 28
+{                    : 26 28 30
+}                    : 26 28 30
 
 Nonterminals, with rules where they appear
 
-elif                 : 24 26
-else                 : 24
-expression           : 4 6 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 19 25 26
-if                   : 24
+elif                 : 25 26 28
+else                 : 25 26 28
+expression           : 4 6 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 20 26 28
+if                   : 25
 is_assign            : 1 2 3
-statement            : 25 26 28 0
+statement            : 26 28 30 0
 
 Parsing method: LALR
 
@@ -93,8 +94,9 @@ state 0
     (3) statement -> . FLOATDEC NAME is_assign
     (6) statement -> . PRINT ( expression )
     (7) statement -> . NAME = expression
-    (24) statement -> . if elif else
-    (25) if -> . IF ( expression ) { statement }
+    (25) statement -> . if elif else
+    (26) if -> . IF ( expression ) { statement } elif else
+    (27) if -> .
 
     BOOLEAN         shift and go to state 2
     INTDEC          shift and go to state 4
@@ -102,6 +104,9 @@ state 0
     PRINT           shift and go to state 6
     NAME            shift and go to state 3
     IF              shift and go to state 8
+    ELIF            reduce using rule 27 (if -> .)
+    ELSE            reduce using rule 27 (if -> .)
+    $end            reduce using rule 27 (if -> .)
 
     statement                      shift and go to state 1
     if                             shift and go to state 7
@@ -149,20 +154,20 @@ state 6
 
 state 7
 
-    (24) statement -> if . elif else
-    (26) elif -> . ELIF ( expression ) { statement } elif
-    (27) elif -> .
+    (25) statement -> if . elif else
+    (28) elif -> . ELIF ( expression ) { statement } elif else
+    (29) elif -> .
 
     ELIF            shift and go to state 15
-    ELSE            reduce using rule 27 (elif -> .)
-    $end            reduce using rule 27 (elif -> .)
-    }               reduce using rule 27 (elif -> .)
+    ELSE            reduce using rule 29 (elif -> .)
+    $end            reduce using rule 29 (elif -> .)
+    }               reduce using rule 29 (elif -> .)
 
     elif                           shift and go to state 14
 
 state 8
 
-    (25) if -> IF . ( expression ) { statement }
+    (26) if -> IF . ( expression ) { statement } elif else
 
     (               shift and go to state 16
 
@@ -192,13 +197,14 @@ state 10
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -247,13 +253,14 @@ state 13
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -267,26 +274,26 @@ state 13
 
 state 14
 
-    (24) statement -> if elif . else
-    (28) else -> . ELSE { statement }
-    (29) else -> .
+    (25) statement -> if elif . else
+    (30) else -> . ELSE { statement }
+    (31) else -> .
 
     ELSE            shift and go to state 31
-    $end            reduce using rule 29 (else -> .)
-    }               reduce using rule 29 (else -> .)
+    $end            reduce using rule 31 (else -> .)
+    }               reduce using rule 31 (else -> .)
 
     else                           shift and go to state 30
 
 state 15
 
-    (26) elif -> ELIF . ( expression ) { statement } elif
+    (28) elif -> ELIF . ( expression ) { statement } elif else
 
     (               shift and go to state 32
 
 
 state 16
 
-    (25) if -> IF ( . expression ) { statement }
+    (26) if -> IF ( . expression ) { statement } elif else
     (8) expression -> . expression + expression
     (9) expression -> . expression - expression
     (10) expression -> . expression * expression
@@ -297,13 +304,14 @@ state 16
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -336,13 +344,14 @@ state 18
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -356,21 +365,22 @@ state 18
 
 state 19
 
-    (30) expression -> NAME .
+    (32) expression -> NAME .
 
-    +               reduce using rule 30 (expression -> NAME .)
-    -               reduce using rule 30 (expression -> NAME .)
-    *               reduce using rule 30 (expression -> NAME .)
-    /               reduce using rule 30 (expression -> NAME .)
-    ^               reduce using rule 30 (expression -> NAME .)
-    <               reduce using rule 30 (expression -> NAME .)
-    >               reduce using rule 30 (expression -> NAME .)
-    EQUAL           reduce using rule 30 (expression -> NAME .)
-    NOTEQUAL        reduce using rule 30 (expression -> NAME .)
-    AND             reduce using rule 30 (expression -> NAME .)
-    $end            reduce using rule 30 (expression -> NAME .)
-    }               reduce using rule 30 (expression -> NAME .)
-    )               reduce using rule 30 (expression -> NAME .)
+    +               reduce using rule 32 (expression -> NAME .)
+    -               reduce using rule 32 (expression -> NAME .)
+    *               reduce using rule 32 (expression -> NAME .)
+    /               reduce using rule 32 (expression -> NAME .)
+    ^               reduce using rule 32 (expression -> NAME .)
+    <               reduce using rule 32 (expression -> NAME .)
+    >               reduce using rule 32 (expression -> NAME .)
+    EQUAL           reduce using rule 32 (expression -> NAME .)
+    NOTEQUAL        reduce using rule 32 (expression -> NAME .)
+    AND             reduce using rule 32 (expression -> NAME .)
+    OR              reduce using rule 32 (expression -> NAME .)
+    $end            reduce using rule 32 (expression -> NAME .)
+    }               reduce using rule 32 (expression -> NAME .)
+    )               reduce using rule 32 (expression -> NAME .)
 
 
 state 20
@@ -386,6 +396,7 @@ state 20
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     $end            reduce using rule 7 (statement -> NAME = expression .)
     }               reduce using rule 7 (statement -> NAME = expression .)
@@ -399,11 +410,12 @@ state 20
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
 
 state 21
 
-    (18) expression -> - . expression
+    (19) expression -> - . expression
     (8) expression -> . expression + expression
     (9) expression -> . expression - expression
     (10) expression -> . expression * expression
@@ -414,44 +426,14 @@ state 21
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
-
-    -               shift and go to state 21
-    (               shift and go to state 22
-    INUMBER         shift and go to state 23
-    FNUMBER         shift and go to state 24
-    TRUE            shift and go to state 25
-    FALSE           shift and go to state 26
-    NAME            shift and go to state 19
-
-    expression                     shift and go to state 45
-
-state 22
-
-    (19) expression -> ( . expression )
-    (8) expression -> . expression + expression
-    (9) expression -> . expression - expression
-    (10) expression -> . expression * expression
-    (11) expression -> . expression / expression
-    (12) expression -> . expression ^ expression
-    (13) expression -> . expression < expression
-    (14) expression -> . expression > expression
-    (15) expression -> . expression EQUAL expression
-    (16) expression -> . expression NOTEQUAL expression
-    (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -463,80 +445,116 @@ state 22
 
     expression                     shift and go to state 46
 
+state 22
+
+    (20) expression -> ( . expression )
+    (8) expression -> . expression + expression
+    (9) expression -> . expression - expression
+    (10) expression -> . expression * expression
+    (11) expression -> . expression / expression
+    (12) expression -> . expression ^ expression
+    (13) expression -> . expression < expression
+    (14) expression -> . expression > expression
+    (15) expression -> . expression EQUAL expression
+    (16) expression -> . expression NOTEQUAL expression
+    (17) expression -> . expression AND expression
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
+
+    -               shift and go to state 21
+    (               shift and go to state 22
+    INUMBER         shift and go to state 23
+    FNUMBER         shift and go to state 24
+    TRUE            shift and go to state 25
+    FALSE           shift and go to state 26
+    NAME            shift and go to state 19
+
+    expression                     shift and go to state 47
+
 state 23
 
-    (20) expression -> INUMBER .
+    (21) expression -> INUMBER .
 
-    +               reduce using rule 20 (expression -> INUMBER .)
-    -               reduce using rule 20 (expression -> INUMBER .)
-    *               reduce using rule 20 (expression -> INUMBER .)
-    /               reduce using rule 20 (expression -> INUMBER .)
-    ^               reduce using rule 20 (expression -> INUMBER .)
-    <               reduce using rule 20 (expression -> INUMBER .)
-    >               reduce using rule 20 (expression -> INUMBER .)
-    EQUAL           reduce using rule 20 (expression -> INUMBER .)
-    NOTEQUAL        reduce using rule 20 (expression -> INUMBER .)
-    AND             reduce using rule 20 (expression -> INUMBER .)
-    $end            reduce using rule 20 (expression -> INUMBER .)
-    }               reduce using rule 20 (expression -> INUMBER .)
-    )               reduce using rule 20 (expression -> INUMBER .)
+    +               reduce using rule 21 (expression -> INUMBER .)
+    -               reduce using rule 21 (expression -> INUMBER .)
+    *               reduce using rule 21 (expression -> INUMBER .)
+    /               reduce using rule 21 (expression -> INUMBER .)
+    ^               reduce using rule 21 (expression -> INUMBER .)
+    <               reduce using rule 21 (expression -> INUMBER .)
+    >               reduce using rule 21 (expression -> INUMBER .)
+    EQUAL           reduce using rule 21 (expression -> INUMBER .)
+    NOTEQUAL        reduce using rule 21 (expression -> INUMBER .)
+    AND             reduce using rule 21 (expression -> INUMBER .)
+    OR              reduce using rule 21 (expression -> INUMBER .)
+    $end            reduce using rule 21 (expression -> INUMBER .)
+    }               reduce using rule 21 (expression -> INUMBER .)
+    )               reduce using rule 21 (expression -> INUMBER .)
 
 
 state 24
 
-    (21) expression -> FNUMBER .
+    (22) expression -> FNUMBER .
 
-    +               reduce using rule 21 (expression -> FNUMBER .)
-    -               reduce using rule 21 (expression -> FNUMBER .)
-    *               reduce using rule 21 (expression -> FNUMBER .)
-    /               reduce using rule 21 (expression -> FNUMBER .)
-    ^               reduce using rule 21 (expression -> FNUMBER .)
-    <               reduce using rule 21 (expression -> FNUMBER .)
-    >               reduce using rule 21 (expression -> FNUMBER .)
-    EQUAL           reduce using rule 21 (expression -> FNUMBER .)
-    NOTEQUAL        reduce using rule 21 (expression -> FNUMBER .)
-    AND             reduce using rule 21 (expression -> FNUMBER .)
-    $end            reduce using rule 21 (expression -> FNUMBER .)
-    }               reduce using rule 21 (expression -> FNUMBER .)
-    )               reduce using rule 21 (expression -> FNUMBER .)
+    +               reduce using rule 22 (expression -> FNUMBER .)
+    -               reduce using rule 22 (expression -> FNUMBER .)
+    *               reduce using rule 22 (expression -> FNUMBER .)
+    /               reduce using rule 22 (expression -> FNUMBER .)
+    ^               reduce using rule 22 (expression -> FNUMBER .)
+    <               reduce using rule 22 (expression -> FNUMBER .)
+    >               reduce using rule 22 (expression -> FNUMBER .)
+    EQUAL           reduce using rule 22 (expression -> FNUMBER .)
+    NOTEQUAL        reduce using rule 22 (expression -> FNUMBER .)
+    AND             reduce using rule 22 (expression -> FNUMBER .)
+    OR              reduce using rule 22 (expression -> FNUMBER .)
+    $end            reduce using rule 22 (expression -> FNUMBER .)
+    }               reduce using rule 22 (expression -> FNUMBER .)
+    )               reduce using rule 22 (expression -> FNUMBER .)
 
 
 state 25
 
-    (22) expression -> TRUE .
+    (23) expression -> TRUE .
 
-    +               reduce using rule 22 (expression -> TRUE .)
-    -               reduce using rule 22 (expression -> TRUE .)
-    *               reduce using rule 22 (expression -> TRUE .)
-    /               reduce using rule 22 (expression -> TRUE .)
-    ^               reduce using rule 22 (expression -> TRUE .)
-    <               reduce using rule 22 (expression -> TRUE .)
-    >               reduce using rule 22 (expression -> TRUE .)
-    EQUAL           reduce using rule 22 (expression -> TRUE .)
-    NOTEQUAL        reduce using rule 22 (expression -> TRUE .)
-    AND             reduce using rule 22 (expression -> TRUE .)
-    $end            reduce using rule 22 (expression -> TRUE .)
-    }               reduce using rule 22 (expression -> TRUE .)
-    )               reduce using rule 22 (expression -> TRUE .)
+    +               reduce using rule 23 (expression -> TRUE .)
+    -               reduce using rule 23 (expression -> TRUE .)
+    *               reduce using rule 23 (expression -> TRUE .)
+    /               reduce using rule 23 (expression -> TRUE .)
+    ^               reduce using rule 23 (expression -> TRUE .)
+    <               reduce using rule 23 (expression -> TRUE .)
+    >               reduce using rule 23 (expression -> TRUE .)
+    EQUAL           reduce using rule 23 (expression -> TRUE .)
+    NOTEQUAL        reduce using rule 23 (expression -> TRUE .)
+    AND             reduce using rule 23 (expression -> TRUE .)
+    OR              reduce using rule 23 (expression -> TRUE .)
+    $end            reduce using rule 23 (expression -> TRUE .)
+    }               reduce using rule 23 (expression -> TRUE .)
+    )               reduce using rule 23 (expression -> TRUE .)
 
 
 state 26
 
-    (23) expression -> FALSE .
+    (24) expression -> FALSE .
 
-    +               reduce using rule 23 (expression -> FALSE .)
-    -               reduce using rule 23 (expression -> FALSE .)
-    *               reduce using rule 23 (expression -> FALSE .)
-    /               reduce using rule 23 (expression -> FALSE .)
-    ^               reduce using rule 23 (expression -> FALSE .)
-    <               reduce using rule 23 (expression -> FALSE .)
-    >               reduce using rule 23 (expression -> FALSE .)
-    EQUAL           reduce using rule 23 (expression -> FALSE .)
-    NOTEQUAL        reduce using rule 23 (expression -> FALSE .)
-    AND             reduce using rule 23 (expression -> FALSE .)
-    $end            reduce using rule 23 (expression -> FALSE .)
-    }               reduce using rule 23 (expression -> FALSE .)
-    )               reduce using rule 23 (expression -> FALSE .)
+    +               reduce using rule 24 (expression -> FALSE .)
+    -               reduce using rule 24 (expression -> FALSE .)
+    *               reduce using rule 24 (expression -> FALSE .)
+    /               reduce using rule 24 (expression -> FALSE .)
+    ^               reduce using rule 24 (expression -> FALSE .)
+    <               reduce using rule 24 (expression -> FALSE .)
+    >               reduce using rule 24 (expression -> FALSE .)
+    EQUAL           reduce using rule 24 (expression -> FALSE .)
+    NOTEQUAL        reduce using rule 24 (expression -> FALSE .)
+    AND             reduce using rule 24 (expression -> FALSE .)
+    OR              reduce using rule 24 (expression -> FALSE .)
+    $end            reduce using rule 24 (expression -> FALSE .)
+    }               reduce using rule 24 (expression -> FALSE .)
+    )               reduce using rule 24 (expression -> FALSE .)
 
 
 state 27
@@ -568,8 +586,9 @@ state 29
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
-    )               shift and go to state 47
+    )               shift and go to state 48
     +               shift and go to state 35
     -               shift and go to state 36
     *               shift and go to state 37
@@ -580,26 +599,27 @@ state 29
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
 
 state 30
 
-    (24) statement -> if elif else .
+    (25) statement -> if elif else .
 
-    $end            reduce using rule 24 (statement -> if elif else .)
-    }               reduce using rule 24 (statement -> if elif else .)
+    $end            reduce using rule 25 (statement -> if elif else .)
+    }               reduce using rule 25 (statement -> if elif else .)
 
 
 state 31
 
-    (28) else -> ELSE . { statement }
+    (30) else -> ELSE . { statement }
 
-    {               shift and go to state 48
+    {               shift and go to state 49
 
 
 state 32
 
-    (26) elif -> ELIF ( . expression ) { statement } elif
+    (28) elif -> ELIF ( . expression ) { statement } elif else
     (8) expression -> . expression + expression
     (9) expression -> . expression - expression
     (10) expression -> . expression * expression
@@ -610,13 +630,14 @@ state 32
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -626,11 +647,11 @@ state 32
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 49
+    expression                     shift and go to state 50
 
 state 33
 
-    (25) if -> IF ( expression . ) { statement }
+    (26) if -> IF ( expression . ) { statement } elif else
     (8) expression -> expression . + expression
     (9) expression -> expression . - expression
     (10) expression -> expression . * expression
@@ -641,8 +662,9 @@ state 33
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
-    )               shift and go to state 50
+    )               shift and go to state 51
     +               shift and go to state 35
     -               shift and go to state 36
     *               shift and go to state 37
@@ -653,6 +675,7 @@ state 33
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
 
 state 34
@@ -668,6 +691,7 @@ state 34
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     $end            reduce using rule 4 (is_assign -> = expression .)
     }               reduce using rule 4 (is_assign -> = expression .)
@@ -681,6 +705,7 @@ state 34
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
 
 state 35
@@ -696,13 +721,14 @@ state 35
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -712,7 +738,7 @@ state 35
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 51
+    expression                     shift and go to state 52
 
 state 36
 
@@ -727,13 +753,14 @@ state 36
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -743,7 +770,7 @@ state 36
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 52
+    expression                     shift and go to state 53
 
 state 37
 
@@ -758,13 +785,14 @@ state 37
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -774,7 +802,7 @@ state 37
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 53
+    expression                     shift and go to state 54
 
 state 38
 
@@ -789,13 +817,14 @@ state 38
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -805,7 +834,7 @@ state 38
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 54
+    expression                     shift and go to state 55
 
 state 39
 
@@ -820,13 +849,14 @@ state 39
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -836,7 +866,7 @@ state 39
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 55
+    expression                     shift and go to state 56
 
 state 40
 
@@ -851,13 +881,14 @@ state 40
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -867,7 +898,7 @@ state 40
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 56
+    expression                     shift and go to state 57
 
 state 41
 
@@ -882,13 +913,14 @@ state 41
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -898,7 +930,7 @@ state 41
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 57
+    expression                     shift and go to state 58
 
 state 42
 
@@ -913,13 +945,14 @@ state 42
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -929,7 +962,7 @@ state 42
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 58
+    expression                     shift and go to state 59
 
 state 43
 
@@ -944,13 +977,14 @@ state 43
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -960,7 +994,7 @@ state 43
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 59
+    expression                     shift and go to state 60
 
 state 44
 
@@ -975,13 +1009,14 @@ state 44
     (15) expression -> . expression EQUAL expression
     (16) expression -> . expression NOTEQUAL expression
     (17) expression -> . expression AND expression
-    (18) expression -> . - expression
-    (19) expression -> . ( expression )
-    (20) expression -> . INUMBER
-    (21) expression -> . FNUMBER
-    (22) expression -> . TRUE
-    (23) expression -> . FALSE
-    (30) expression -> . NAME
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
 
     -               shift and go to state 21
     (               shift and go to state 22
@@ -991,11 +1026,43 @@ state 44
     FALSE           shift and go to state 26
     NAME            shift and go to state 19
 
-    expression                     shift and go to state 60
+    expression                     shift and go to state 61
 
 state 45
 
-    (18) expression -> - expression .
+    (18) expression -> expression OR . expression
+    (8) expression -> . expression + expression
+    (9) expression -> . expression - expression
+    (10) expression -> . expression * expression
+    (11) expression -> . expression / expression
+    (12) expression -> . expression ^ expression
+    (13) expression -> . expression < expression
+    (14) expression -> . expression > expression
+    (15) expression -> . expression EQUAL expression
+    (16) expression -> . expression NOTEQUAL expression
+    (17) expression -> . expression AND expression
+    (18) expression -> . expression OR expression
+    (19) expression -> . - expression
+    (20) expression -> . ( expression )
+    (21) expression -> . INUMBER
+    (22) expression -> . FNUMBER
+    (23) expression -> . TRUE
+    (24) expression -> . FALSE
+    (32) expression -> . NAME
+
+    -               shift and go to state 21
+    (               shift and go to state 22
+    INUMBER         shift and go to state 23
+    FNUMBER         shift and go to state 24
+    TRUE            shift and go to state 25
+    FALSE           shift and go to state 26
+    NAME            shift and go to state 19
+
+    expression                     shift and go to state 62
+
+state 46
+
+    (19) expression -> - expression .
     (8) expression -> expression . + expression
     (9) expression -> expression . - expression
     (10) expression -> expression . * expression
@@ -1006,20 +1073,22 @@ state 45
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
-    +               reduce using rule 18 (expression -> - expression .)
-    -               reduce using rule 18 (expression -> - expression .)
-    *               reduce using rule 18 (expression -> - expression .)
-    /               reduce using rule 18 (expression -> - expression .)
-    ^               reduce using rule 18 (expression -> - expression .)
-    <               reduce using rule 18 (expression -> - expression .)
-    >               reduce using rule 18 (expression -> - expression .)
-    EQUAL           reduce using rule 18 (expression -> - expression .)
-    NOTEQUAL        reduce using rule 18 (expression -> - expression .)
-    AND             reduce using rule 18 (expression -> - expression .)
-    $end            reduce using rule 18 (expression -> - expression .)
-    }               reduce using rule 18 (expression -> - expression .)
-    )               reduce using rule 18 (expression -> - expression .)
+    +               reduce using rule 19 (expression -> - expression .)
+    -               reduce using rule 19 (expression -> - expression .)
+    *               reduce using rule 19 (expression -> - expression .)
+    /               reduce using rule 19 (expression -> - expression .)
+    ^               reduce using rule 19 (expression -> - expression .)
+    <               reduce using rule 19 (expression -> - expression .)
+    >               reduce using rule 19 (expression -> - expression .)
+    EQUAL           reduce using rule 19 (expression -> - expression .)
+    NOTEQUAL        reduce using rule 19 (expression -> - expression .)
+    AND             reduce using rule 19 (expression -> - expression .)
+    OR              reduce using rule 19 (expression -> - expression .)
+    $end            reduce using rule 19 (expression -> - expression .)
+    }               reduce using rule 19 (expression -> - expression .)
+    )               reduce using rule 19 (expression -> - expression .)
 
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
@@ -1031,67 +1100,12 @@ state 45
   ! EQUAL           [ shift and go to state 42 ]
   ! NOTEQUAL        [ shift and go to state 43 ]
   ! AND             [ shift and go to state 44 ]
-
-
-state 46
-
-    (19) expression -> ( expression . )
-    (8) expression -> expression . + expression
-    (9) expression -> expression . - expression
-    (10) expression -> expression . * expression
-    (11) expression -> expression . / expression
-    (12) expression -> expression . ^ expression
-    (13) expression -> expression . < expression
-    (14) expression -> expression . > expression
-    (15) expression -> expression . EQUAL expression
-    (16) expression -> expression . NOTEQUAL expression
-    (17) expression -> expression . AND expression
-
-    )               shift and go to state 61
-    +               shift and go to state 35
-    -               shift and go to state 36
-    *               shift and go to state 37
-    /               shift and go to state 38
-    ^               shift and go to state 39
-    <               shift and go to state 40
-    >               shift and go to state 41
-    EQUAL           shift and go to state 42
-    NOTEQUAL        shift and go to state 43
-    AND             shift and go to state 44
+  ! OR              [ shift and go to state 45 ]
 
 
 state 47
 
-    (6) statement -> PRINT ( expression ) .
-
-    $end            reduce using rule 6 (statement -> PRINT ( expression ) .)
-    }               reduce using rule 6 (statement -> PRINT ( expression ) .)
-
-
-state 48
-
-    (28) else -> ELSE { . statement }
-    (1) statement -> . BOOLEAN NAME is_assign
-    (2) statement -> . INTDEC NAME is_assign
-    (3) statement -> . FLOATDEC NAME is_assign
-    (6) statement -> . PRINT ( expression )
-    (7) statement -> . NAME = expression
-    (24) statement -> . if elif else
-    (25) if -> . IF ( expression ) { statement }
-
-    BOOLEAN         shift and go to state 2
-    INTDEC          shift and go to state 4
-    FLOATDEC        shift and go to state 5
-    PRINT           shift and go to state 6
-    NAME            shift and go to state 3
-    IF              shift and go to state 8
-
-    statement                      shift and go to state 62
-    if                             shift and go to state 7
-
-state 49
-
-    (26) elif -> ELIF ( expression . ) { statement } elif
+    (20) expression -> ( expression . )
     (8) expression -> expression . + expression
     (9) expression -> expression . - expression
     (10) expression -> expression . * expression
@@ -1102,6 +1116,7 @@ state 49
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     )               shift and go to state 63
     +               shift and go to state 35
@@ -1114,16 +1129,79 @@ state 49
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
+
+state 48
+
+    (6) statement -> PRINT ( expression ) .
+
+    $end            reduce using rule 6 (statement -> PRINT ( expression ) .)
+    }               reduce using rule 6 (statement -> PRINT ( expression ) .)
+
+
+state 49
+
+    (30) else -> ELSE { . statement }
+    (1) statement -> . BOOLEAN NAME is_assign
+    (2) statement -> . INTDEC NAME is_assign
+    (3) statement -> . FLOATDEC NAME is_assign
+    (6) statement -> . PRINT ( expression )
+    (7) statement -> . NAME = expression
+    (25) statement -> . if elif else
+    (26) if -> . IF ( expression ) { statement } elif else
+    (27) if -> .
+
+    BOOLEAN         shift and go to state 2
+    INTDEC          shift and go to state 4
+    FLOATDEC        shift and go to state 5
+    PRINT           shift and go to state 6
+    NAME            shift and go to state 3
+    IF              shift and go to state 8
+    ELIF            reduce using rule 27 (if -> .)
+    ELSE            reduce using rule 27 (if -> .)
+    }               reduce using rule 27 (if -> .)
+
+    statement                      shift and go to state 64
+    if                             shift and go to state 7
 
 state 50
 
-    (25) if -> IF ( expression ) . { statement }
+    (28) elif -> ELIF ( expression . ) { statement } elif else
+    (8) expression -> expression . + expression
+    (9) expression -> expression . - expression
+    (10) expression -> expression . * expression
+    (11) expression -> expression . / expression
+    (12) expression -> expression . ^ expression
+    (13) expression -> expression . < expression
+    (14) expression -> expression . > expression
+    (15) expression -> expression . EQUAL expression
+    (16) expression -> expression . NOTEQUAL expression
+    (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
-    {               shift and go to state 64
+    )               shift and go to state 65
+    +               shift and go to state 35
+    -               shift and go to state 36
+    *               shift and go to state 37
+    /               shift and go to state 38
+    ^               shift and go to state 39
+    <               shift and go to state 40
+    >               shift and go to state 41
+    EQUAL           shift and go to state 42
+    NOTEQUAL        shift and go to state 43
+    AND             shift and go to state 44
+    OR              shift and go to state 45
 
 
 state 51
+
+    (26) if -> IF ( expression ) . { statement } elif else
+
+    {               shift and go to state 66
+
+
+state 52
 
     (8) expression -> expression + expression .
     (8) expression -> expression . + expression
@@ -1136,6 +1214,7 @@ state 51
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 8 (expression -> expression + expression .)
     -               reduce using rule 8 (expression -> expression + expression .)
@@ -1150,11 +1229,13 @@ state 51
     <               shift and go to state 40
     >               shift and go to state 41
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! ^               [ reduce using rule 8 (expression -> expression + expression .) ]
   ! <               [ reduce using rule 8 (expression -> expression + expression .) ]
   ! >               [ reduce using rule 8 (expression -> expression + expression .) ]
   ! AND             [ reduce using rule 8 (expression -> expression + expression .) ]
+  ! OR              [ reduce using rule 8 (expression -> expression + expression .) ]
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
   ! *               [ shift and go to state 37 ]
@@ -1163,7 +1244,7 @@ state 51
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 52
+state 53
 
     (9) expression -> expression - expression .
     (8) expression -> expression . + expression
@@ -1176,6 +1257,7 @@ state 52
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 9 (expression -> expression - expression .)
     -               reduce using rule 9 (expression -> expression - expression .)
@@ -1190,11 +1272,13 @@ state 52
     <               shift and go to state 40
     >               shift and go to state 41
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! ^               [ reduce using rule 9 (expression -> expression - expression .) ]
   ! <               [ reduce using rule 9 (expression -> expression - expression .) ]
   ! >               [ reduce using rule 9 (expression -> expression - expression .) ]
   ! AND             [ reduce using rule 9 (expression -> expression - expression .) ]
+  ! OR              [ reduce using rule 9 (expression -> expression - expression .) ]
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
   ! *               [ shift and go to state 37 ]
@@ -1203,7 +1287,7 @@ state 52
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 53
+state 54
 
     (10) expression -> expression * expression .
     (8) expression -> expression . + expression
@@ -1216,6 +1300,7 @@ state 53
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     *               reduce using rule 10 (expression -> expression * expression .)
     /               reduce using rule 10 (expression -> expression * expression .)
@@ -1230,6 +1315,7 @@ state 53
     <               shift and go to state 40
     >               shift and go to state 41
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! +               [ reduce using rule 10 (expression -> expression * expression .) ]
   ! -               [ reduce using rule 10 (expression -> expression * expression .) ]
@@ -1237,13 +1323,14 @@ state 53
   ! <               [ reduce using rule 10 (expression -> expression * expression .) ]
   ! >               [ reduce using rule 10 (expression -> expression * expression .) ]
   ! AND             [ reduce using rule 10 (expression -> expression * expression .) ]
+  ! OR              [ reduce using rule 10 (expression -> expression * expression .) ]
   ! *               [ shift and go to state 37 ]
   ! /               [ shift and go to state 38 ]
   ! EQUAL           [ shift and go to state 42 ]
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 54
+state 55
 
     (11) expression -> expression / expression .
     (8) expression -> expression . + expression
@@ -1256,6 +1343,7 @@ state 54
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     *               reduce using rule 11 (expression -> expression / expression .)
     /               reduce using rule 11 (expression -> expression / expression .)
@@ -1270,6 +1358,7 @@ state 54
     <               shift and go to state 40
     >               shift and go to state 41
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! +               [ reduce using rule 11 (expression -> expression / expression .) ]
   ! -               [ reduce using rule 11 (expression -> expression / expression .) ]
@@ -1277,13 +1366,14 @@ state 54
   ! <               [ reduce using rule 11 (expression -> expression / expression .) ]
   ! >               [ reduce using rule 11 (expression -> expression / expression .) ]
   ! AND             [ reduce using rule 11 (expression -> expression / expression .) ]
+  ! OR              [ reduce using rule 11 (expression -> expression / expression .) ]
   ! *               [ shift and go to state 37 ]
   ! /               [ shift and go to state 38 ]
   ! EQUAL           [ shift and go to state 42 ]
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 55
+state 56
 
     (12) expression -> expression ^ expression .
     (8) expression -> expression . + expression
@@ -1296,6 +1386,7 @@ state 55
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 12 (expression -> expression ^ expression .)
     -               reduce using rule 12 (expression -> expression ^ expression .)
@@ -1310,10 +1401,12 @@ state 55
     <               shift and go to state 40
     >               shift and go to state 41
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! <               [ reduce using rule 12 (expression -> expression ^ expression .) ]
   ! >               [ reduce using rule 12 (expression -> expression ^ expression .) ]
   ! AND             [ reduce using rule 12 (expression -> expression ^ expression .) ]
+  ! OR              [ reduce using rule 12 (expression -> expression ^ expression .) ]
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
   ! *               [ shift and go to state 37 ]
@@ -1323,7 +1416,7 @@ state 55
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 56
+state 57
 
     (13) expression -> expression < expression .
     (8) expression -> expression . + expression
@@ -1336,6 +1429,7 @@ state 56
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 13 (expression -> expression < expression .)
     -               reduce using rule 13 (expression -> expression < expression .)
@@ -1350,8 +1444,10 @@ state 56
     }               reduce using rule 13 (expression -> expression < expression .)
     )               reduce using rule 13 (expression -> expression < expression .)
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! AND             [ reduce using rule 13 (expression -> expression < expression .) ]
+  ! OR              [ reduce using rule 13 (expression -> expression < expression .) ]
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
   ! *               [ shift and go to state 37 ]
@@ -1363,7 +1459,7 @@ state 56
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 57
+state 58
 
     (14) expression -> expression > expression .
     (8) expression -> expression . + expression
@@ -1376,6 +1472,7 @@ state 57
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 14 (expression -> expression > expression .)
     -               reduce using rule 14 (expression -> expression > expression .)
@@ -1390,8 +1487,10 @@ state 57
     }               reduce using rule 14 (expression -> expression > expression .)
     )               reduce using rule 14 (expression -> expression > expression .)
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! AND             [ reduce using rule 14 (expression -> expression > expression .) ]
+  ! OR              [ reduce using rule 14 (expression -> expression > expression .) ]
   ! +               [ shift and go to state 35 ]
   ! -               [ shift and go to state 36 ]
   ! *               [ shift and go to state 37 ]
@@ -1403,7 +1502,7 @@ state 57
   ! NOTEQUAL        [ shift and go to state 43 ]
 
 
-state 58
+state 59
 
     (15) expression -> expression EQUAL expression .
     (8) expression -> expression . + expression
@@ -1416,6 +1515,7 @@ state 58
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
   ! shift/reduce conflict for + resolved as shift
   ! shift/reduce conflict for - resolved as shift
@@ -1427,6 +1527,7 @@ state 58
   ! shift/reduce conflict for EQUAL resolved as shift
   ! shift/reduce conflict for NOTEQUAL resolved as shift
   ! shift/reduce conflict for AND resolved as shift
+  ! shift/reduce conflict for OR resolved as shift
     $end            reduce using rule 15 (expression -> expression EQUAL expression .)
     }               reduce using rule 15 (expression -> expression EQUAL expression .)
     )               reduce using rule 15 (expression -> expression EQUAL expression .)
@@ -1440,6 +1541,7 @@ state 58
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! +               [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
   ! -               [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
@@ -1451,9 +1553,10 @@ state 58
   ! EQUAL           [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
   ! NOTEQUAL        [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
   ! AND             [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
+  ! OR              [ reduce using rule 15 (expression -> expression EQUAL expression .) ]
 
 
-state 59
+state 60
 
     (16) expression -> expression NOTEQUAL expression .
     (8) expression -> expression . + expression
@@ -1466,6 +1569,7 @@ state 59
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
   ! shift/reduce conflict for + resolved as shift
   ! shift/reduce conflict for - resolved as shift
@@ -1477,6 +1581,7 @@ state 59
   ! shift/reduce conflict for EQUAL resolved as shift
   ! shift/reduce conflict for NOTEQUAL resolved as shift
   ! shift/reduce conflict for AND resolved as shift
+  ! shift/reduce conflict for OR resolved as shift
     $end            reduce using rule 16 (expression -> expression NOTEQUAL expression .)
     }               reduce using rule 16 (expression -> expression NOTEQUAL expression .)
     )               reduce using rule 16 (expression -> expression NOTEQUAL expression .)
@@ -1490,6 +1595,7 @@ state 59
     EQUAL           shift and go to state 42
     NOTEQUAL        shift and go to state 43
     AND             shift and go to state 44
+    OR              shift and go to state 45
 
   ! +               [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
   ! -               [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
@@ -1501,9 +1607,10 @@ state 59
   ! EQUAL           [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
   ! NOTEQUAL        [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
   ! AND             [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
+  ! OR              [ reduce using rule 16 (expression -> expression NOTEQUAL expression .) ]
 
 
-state 60
+state 61
 
     (17) expression -> expression AND expression .
     (8) expression -> expression . + expression
@@ -1516,6 +1623,7 @@ state 60
     (15) expression -> expression . EQUAL expression
     (16) expression -> expression . NOTEQUAL expression
     (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
     +               reduce using rule 17 (expression -> expression AND expression .)
     -               reduce using rule 17 (expression -> expression AND expression .)
@@ -1527,6 +1635,7 @@ state 60
     EQUAL           reduce using rule 17 (expression -> expression AND expression .)
     NOTEQUAL        reduce using rule 17 (expression -> expression AND expression .)
     AND             reduce using rule 17 (expression -> expression AND expression .)
+    OR              reduce using rule 17 (expression -> expression AND expression .)
     $end            reduce using rule 17 (expression -> expression AND expression .)
     }               reduce using rule 17 (expression -> expression AND expression .)
     )               reduce using rule 17 (expression -> expression AND expression .)
@@ -1541,80 +1650,97 @@ state 60
   ! EQUAL           [ shift and go to state 42 ]
   ! NOTEQUAL        [ shift and go to state 43 ]
   ! AND             [ shift and go to state 44 ]
-
-
-state 61
-
-    (19) expression -> ( expression ) .
-
-    +               reduce using rule 19 (expression -> ( expression ) .)
-    -               reduce using rule 19 (expression -> ( expression ) .)
-    *               reduce using rule 19 (expression -> ( expression ) .)
-    /               reduce using rule 19 (expression -> ( expression ) .)
-    ^               reduce using rule 19 (expression -> ( expression ) .)
-    <               reduce using rule 19 (expression -> ( expression ) .)
-    >               reduce using rule 19 (expression -> ( expression ) .)
-    EQUAL           reduce using rule 19 (expression -> ( expression ) .)
-    NOTEQUAL        reduce using rule 19 (expression -> ( expression ) .)
-    AND             reduce using rule 19 (expression -> ( expression ) .)
-    $end            reduce using rule 19 (expression -> ( expression ) .)
-    }               reduce using rule 19 (expression -> ( expression ) .)
-    )               reduce using rule 19 (expression -> ( expression ) .)
+  ! OR              [ shift and go to state 45 ]
 
 
 state 62
 
-    (28) else -> ELSE { statement . }
+    (18) expression -> expression OR expression .
+    (8) expression -> expression . + expression
+    (9) expression -> expression . - expression
+    (10) expression -> expression . * expression
+    (11) expression -> expression . / expression
+    (12) expression -> expression . ^ expression
+    (13) expression -> expression . < expression
+    (14) expression -> expression . > expression
+    (15) expression -> expression . EQUAL expression
+    (16) expression -> expression . NOTEQUAL expression
+    (17) expression -> expression . AND expression
+    (18) expression -> expression . OR expression
 
-    }               shift and go to state 65
+    +               reduce using rule 18 (expression -> expression OR expression .)
+    -               reduce using rule 18 (expression -> expression OR expression .)
+    *               reduce using rule 18 (expression -> expression OR expression .)
+    /               reduce using rule 18 (expression -> expression OR expression .)
+    ^               reduce using rule 18 (expression -> expression OR expression .)
+    <               reduce using rule 18 (expression -> expression OR expression .)
+    >               reduce using rule 18 (expression -> expression OR expression .)
+    EQUAL           reduce using rule 18 (expression -> expression OR expression .)
+    NOTEQUAL        reduce using rule 18 (expression -> expression OR expression .)
+    AND             reduce using rule 18 (expression -> expression OR expression .)
+    OR              reduce using rule 18 (expression -> expression OR expression .)
+    $end            reduce using rule 18 (expression -> expression OR expression .)
+    }               reduce using rule 18 (expression -> expression OR expression .)
+    )               reduce using rule 18 (expression -> expression OR expression .)
+
+  ! +               [ shift and go to state 35 ]
+  ! -               [ shift and go to state 36 ]
+  ! *               [ shift and go to state 37 ]
+  ! /               [ shift and go to state 38 ]
+  ! ^               [ shift and go to state 39 ]
+  ! <               [ shift and go to state 40 ]
+  ! >               [ shift and go to state 41 ]
+  ! EQUAL           [ shift and go to state 42 ]
+  ! NOTEQUAL        [ shift and go to state 43 ]
+  ! AND             [ shift and go to state 44 ]
+  ! OR              [ shift and go to state 45 ]
 
 
 state 63
 
-    (26) elif -> ELIF ( expression ) . { statement } elif
+    (20) expression -> ( expression ) .
 
-    {               shift and go to state 66
+    +               reduce using rule 20 (expression -> ( expression ) .)
+    -               reduce using rule 20 (expression -> ( expression ) .)
+    *               reduce using rule 20 (expression -> ( expression ) .)
+    /               reduce using rule 20 (expression -> ( expression ) .)
+    ^               reduce using rule 20 (expression -> ( expression ) .)
+    <               reduce using rule 20 (expression -> ( expression ) .)
+    >               reduce using rule 20 (expression -> ( expression ) .)
+    EQUAL           reduce using rule 20 (expression -> ( expression ) .)
+    NOTEQUAL        reduce using rule 20 (expression -> ( expression ) .)
+    AND             reduce using rule 20 (expression -> ( expression ) .)
+    OR              reduce using rule 20 (expression -> ( expression ) .)
+    $end            reduce using rule 20 (expression -> ( expression ) .)
+    }               reduce using rule 20 (expression -> ( expression ) .)
+    )               reduce using rule 20 (expression -> ( expression ) .)
 
 
 state 64
 
-    (25) if -> IF ( expression ) { . statement }
-    (1) statement -> . BOOLEAN NAME is_assign
-    (2) statement -> . INTDEC NAME is_assign
-    (3) statement -> . FLOATDEC NAME is_assign
-    (6) statement -> . PRINT ( expression )
-    (7) statement -> . NAME = expression
-    (24) statement -> . if elif else
-    (25) if -> . IF ( expression ) { statement }
+    (30) else -> ELSE { statement . }
 
-    BOOLEAN         shift and go to state 2
-    INTDEC          shift and go to state 4
-    FLOATDEC        shift and go to state 5
-    PRINT           shift and go to state 6
-    NAME            shift and go to state 3
-    IF              shift and go to state 8
+    }               shift and go to state 67
 
-    statement                      shift and go to state 67
-    if                             shift and go to state 7
 
 state 65
 
-    (28) else -> ELSE { statement } .
+    (28) elif -> ELIF ( expression ) . { statement } elif else
 
-    $end            reduce using rule 28 (else -> ELSE { statement } .)
-    }               reduce using rule 28 (else -> ELSE { statement } .)
+    {               shift and go to state 68
 
 
 state 66
 
-    (26) elif -> ELIF ( expression ) { . statement } elif
+    (26) if -> IF ( expression ) { . statement } elif else
     (1) statement -> . BOOLEAN NAME is_assign
     (2) statement -> . INTDEC NAME is_assign
     (3) statement -> . FLOATDEC NAME is_assign
     (6) statement -> . PRINT ( expression )
     (7) statement -> . NAME = expression
-    (24) statement -> . if elif else
-    (25) if -> . IF ( expression ) { statement }
+    (25) statement -> . if elif else
+    (26) if -> . IF ( expression ) { statement } elif else
+    (27) if -> .
 
     BOOLEAN         shift and go to state 2
     INTDEC          shift and go to state 4
@@ -1622,68 +1748,148 @@ state 66
     PRINT           shift and go to state 6
     NAME            shift and go to state 3
     IF              shift and go to state 8
+    ELIF            reduce using rule 27 (if -> .)
+    ELSE            reduce using rule 27 (if -> .)
+    }               reduce using rule 27 (if -> .)
 
-    statement                      shift and go to state 68
+    statement                      shift and go to state 69
     if                             shift and go to state 7
 
 state 67
 
-    (25) if -> IF ( expression ) { statement . }
+    (30) else -> ELSE { statement } .
 
-    }               shift and go to state 69
+    $end            reduce using rule 30 (else -> ELSE { statement } .)
+    }               reduce using rule 30 (else -> ELSE { statement } .)
+    ELIF            reduce using rule 30 (else -> ELSE { statement } .)
+    ELSE            reduce using rule 30 (else -> ELSE { statement } .)
 
 
 state 68
 
-    (26) elif -> ELIF ( expression ) { statement . } elif
+    (28) elif -> ELIF ( expression ) { . statement } elif else
+    (1) statement -> . BOOLEAN NAME is_assign
+    (2) statement -> . INTDEC NAME is_assign
+    (3) statement -> . FLOATDEC NAME is_assign
+    (6) statement -> . PRINT ( expression )
+    (7) statement -> . NAME = expression
+    (25) statement -> . if elif else
+    (26) if -> . IF ( expression ) { statement } elif else
+    (27) if -> .
 
-    }               shift and go to state 70
+    BOOLEAN         shift and go to state 2
+    INTDEC          shift and go to state 4
+    FLOATDEC        shift and go to state 5
+    PRINT           shift and go to state 6
+    NAME            shift and go to state 3
+    IF              shift and go to state 8
+    ELIF            reduce using rule 27 (if -> .)
+    ELSE            reduce using rule 27 (if -> .)
+    }               reduce using rule 27 (if -> .)
 
+    statement                      shift and go to state 70
+    if                             shift and go to state 7
 
 state 69
 
-    (25) if -> IF ( expression ) { statement } .
+    (26) if -> IF ( expression ) { statement . } elif else
 
-    ELIF            reduce using rule 25 (if -> IF ( expression ) { statement } .)
-    ELSE            reduce using rule 25 (if -> IF ( expression ) { statement } .)
-    $end            reduce using rule 25 (if -> IF ( expression ) { statement } .)
-    }               reduce using rule 25 (if -> IF ( expression ) { statement } .)
+    }               shift and go to state 71
 
 
 state 70
 
-    (26) elif -> ELIF ( expression ) { statement } . elif
-    (26) elif -> . ELIF ( expression ) { statement } elif
-    (27) elif -> .
+    (28) elif -> ELIF ( expression ) { statement . } elif else
 
-    ELIF            shift and go to state 15
-    ELSE            reduce using rule 27 (elif -> .)
-    $end            reduce using rule 27 (elif -> .)
-    }               reduce using rule 27 (elif -> .)
+    }               shift and go to state 72
 
-    elif                           shift and go to state 71
 
 state 71
 
-    (26) elif -> ELIF ( expression ) { statement } elif .
+    (26) if -> IF ( expression ) { statement } . elif else
+    (28) elif -> . ELIF ( expression ) { statement } elif else
+    (29) elif -> .
 
-    ELSE            reduce using rule 26 (elif -> ELIF ( expression ) { statement } elif .)
-    $end            reduce using rule 26 (elif -> ELIF ( expression ) { statement } elif .)
-    }               reduce using rule 26 (elif -> ELIF ( expression ) { statement } elif .)
+  ! shift/reduce conflict for ELIF resolved as shift
+    ELIF            shift and go to state 15
+    ELSE            reduce using rule 29 (elif -> .)
+    $end            reduce using rule 29 (elif -> .)
+    }               reduce using rule 29 (elif -> .)
+
+  ! ELIF            [ reduce using rule 29 (elif -> .) ]
+
+    elif                           shift and go to state 73
+
+state 72
+
+    (28) elif -> ELIF ( expression ) { statement } . elif else
+    (28) elif -> . ELIF ( expression ) { statement } elif else
+    (29) elif -> .
+
+  ! shift/reduce conflict for ELIF resolved as shift
+    ELIF            shift and go to state 15
+    ELSE            reduce using rule 29 (elif -> .)
+    $end            reduce using rule 29 (elif -> .)
+    }               reduce using rule 29 (elif -> .)
+
+  ! ELIF            [ reduce using rule 29 (elif -> .) ]
+
+    elif                           shift and go to state 74
+
+state 73
+
+    (26) if -> IF ( expression ) { statement } elif . else
+    (30) else -> . ELSE { statement }
+    (31) else -> .
+
+  ! shift/reduce conflict for ELSE resolved as shift
+    ELSE            shift and go to state 31
+    ELIF            reduce using rule 31 (else -> .)
+    $end            reduce using rule 31 (else -> .)
+    }               reduce using rule 31 (else -> .)
+
+  ! ELSE            [ reduce using rule 31 (else -> .) ]
+
+    else                           shift and go to state 75
+
+state 74
+
+    (28) elif -> ELIF ( expression ) { statement } elif . else
+    (30) else -> . ELSE { statement }
+    (31) else -> .
+
+  ! shift/reduce conflict for ELSE resolved as shift
+    ELSE            shift and go to state 31
+    $end            reduce using rule 31 (else -> .)
+    }               reduce using rule 31 (else -> .)
+    ELIF            reduce using rule 31 (else -> .)
+
+  ! ELSE            [ reduce using rule 31 (else -> .) ]
+
+    else                           shift and go to state 76
+
+state 75
+
+    (26) if -> IF ( expression ) { statement } elif else .
+
+    ELIF            reduce using rule 26 (if -> IF ( expression ) { statement } elif else .)
+    ELSE            reduce using rule 26 (if -> IF ( expression ) { statement } elif else .)
+    $end            reduce using rule 26 (if -> IF ( expression ) { statement } elif else .)
+    }               reduce using rule 26 (if -> IF ( expression ) { statement } elif else .)
+
+
+state 76
+
+    (28) elif -> ELIF ( expression ) { statement } elif else .
+
+    ELSE            reduce using rule 28 (elif -> ELIF ( expression ) { statement } elif else .)
+    $end            reduce using rule 28 (elif -> ELIF ( expression ) { statement } elif else .)
+    }               reduce using rule 28 (elif -> ELIF ( expression ) { statement } elif else .)
+    ELIF            reduce using rule 28 (elif -> ELIF ( expression ) { statement } elif else .)
 
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for + in state 58 resolved as shift
-WARNING: shift/reduce conflict for - in state 58 resolved as shift
-WARNING: shift/reduce conflict for * in state 58 resolved as shift
-WARNING: shift/reduce conflict for / in state 58 resolved as shift
-WARNING: shift/reduce conflict for ^ in state 58 resolved as shift
-WARNING: shift/reduce conflict for < in state 58 resolved as shift
-WARNING: shift/reduce conflict for > in state 58 resolved as shift
-WARNING: shift/reduce conflict for EQUAL in state 58 resolved as shift
-WARNING: shift/reduce conflict for NOTEQUAL in state 58 resolved as shift
-WARNING: shift/reduce conflict for AND in state 58 resolved as shift
 WARNING: shift/reduce conflict for + in state 59 resolved as shift
 WARNING: shift/reduce conflict for - in state 59 resolved as shift
 WARNING: shift/reduce conflict for * in state 59 resolved as shift
@@ -1694,3 +1900,19 @@ WARNING: shift/reduce conflict for > in state 59 resolved as shift
 WARNING: shift/reduce conflict for EQUAL in state 59 resolved as shift
 WARNING: shift/reduce conflict for NOTEQUAL in state 59 resolved as shift
 WARNING: shift/reduce conflict for AND in state 59 resolved as shift
+WARNING: shift/reduce conflict for OR in state 59 resolved as shift
+WARNING: shift/reduce conflict for + in state 60 resolved as shift
+WARNING: shift/reduce conflict for - in state 60 resolved as shift
+WARNING: shift/reduce conflict for * in state 60 resolved as shift
+WARNING: shift/reduce conflict for / in state 60 resolved as shift
+WARNING: shift/reduce conflict for ^ in state 60 resolved as shift
+WARNING: shift/reduce conflict for < in state 60 resolved as shift
+WARNING: shift/reduce conflict for > in state 60 resolved as shift
+WARNING: shift/reduce conflict for EQUAL in state 60 resolved as shift
+WARNING: shift/reduce conflict for NOTEQUAL in state 60 resolved as shift
+WARNING: shift/reduce conflict for AND in state 60 resolved as shift
+WARNING: shift/reduce conflict for OR in state 60 resolved as shift
+WARNING: shift/reduce conflict for ELIF in state 71 resolved as shift
+WARNING: shift/reduce conflict for ELIF in state 72 resolved as shift
+WARNING: shift/reduce conflict for ELSE in state 73 resolved as shift
+WARNING: shift/reduce conflict for ELSE in state 74 resolved as shift
