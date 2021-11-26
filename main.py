@@ -185,7 +185,10 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] - float(p[3])   
         else:
-            p[0] = p[1] - p[3]
+            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+               print("Operation not available for these data types")
+            else:
+                 p[0] = p[1] - p[3]
     elif p[2] == '*':
         if(type(p[1]) != type(p[3])):
             if((type(p[1]) != float) & (type(p[3]) == float)):
@@ -193,7 +196,10 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] * float(p[3])   
         else:
-            p[0] = p[1] * p[3]
+            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+               print("Operation not available for these data types")
+            else:
+                 p[0] = p[1] * p[3]
     elif p[2] == '/':
         if(type(p[1]) != type(p[3])):
             if((type(p[1]) != float) & (type(p[3]) == float)):
@@ -201,7 +207,21 @@ def p_expression_binop_comparison(p):
             elif((type(p[1]) == float) & (type(p[3]) != float)):
                 p[0] =  p[1] / float(p[3])   
         else:
-            p[0] = p[1] / p[3]
+            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+               print("Operation not available for these data types")
+            else:
+                 p[0] = p[1] / p[3]
+    elif p[2] == '^':
+        if(type(p[1]) != type(p[3])):
+            if((type(p[1]) != float) & (type(p[3]) == float)):
+                p[0] =  float(p[1]) ** (p[3])
+            elif((type(p[1]) == float) & (type(p[3]) != float)):
+                p[0] =  p[1] ** float(p[3])   
+        else: 
+            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
+               print("Operation not available for these data types")
+            else:
+                 p[0] = p[1] ** p[3]
     elif p[2] == '<':
         if(type(p[1]) != type(p[3])):
             if((type(p[1]) != float) & (type(p[3]) == float)):
