@@ -7,6 +7,8 @@ reserved = {
     'int': 'INTDEC',
     'float': 'FLOATDEC',
     'print': 'PRINT',
+    'while': 'WHILE',
+    'for': 'FOR',
     # === Bools and logical operations
     'boolean': 'BOOLEAN',
     'string': 'STRING',
@@ -14,14 +16,12 @@ reserved = {
     'or': 'OR',
     'if': 'IF',
     'elif': 'ELIF',
-    'else': 'ELSE',
-    '(': 'LPAREN',
-    ')': 'RPAREN'
+    'else': 'ELSE'
 }
 
 tokens = [
             #                   Equals, !Equals, Greater or Equal to, Less or Equal to
-             'INUMBER', 'FNUMBER', 'NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL', 'GT', 'LT'
+             'INUMBER', 'FNUMBER', 'STRING_V','NAME', 'EQUAL', 'NOTEQUAL', 'GOEQUAL', 'LOEQUAL', 'GT', 'LT'
          ] + list(reserved.values())
 
 # Tokens
@@ -34,19 +34,17 @@ t_GT = r'>'
 t_LT = r'<'
 t_ignore = " \t"
 
-def t_BOOLEAN(t):
-    r'"True|False"'
-    return t
 
-def t_STRING(t):
+def t_STRING_V(t):
     r'".*"'
+    t.value = t.value.replace("\"", "")
+    t.type = reserved.get(t.value, 'STRING_V')
     return t
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'NAME')  # Check for reserved words
     return t
-
 
 def t_FNUMBER(t):
     r'\d+\.\d+'
@@ -61,7 +59,6 @@ def t_INUMBER(t):
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
-
 
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
@@ -86,76 +83,58 @@ precedence = (
 
 # dictionary of names
 names = {}
-abstractTree = []
 
-class Node:
-    val=''
-    type=''
-    children=[]
-        
-    def __init__(self, val, type, children):
-        self.val = val
-        self.type = type
-        self.children = children
 
 def p_start(p):
-    '''s : segment
-        | segment s'''
-    print("start")
-    p[0] = p[1]
+    '''s : segment '''
+    global abstractTree
+    abstractTree = p[1]
 
 def p_segment(p):
-    '''segment : conditional
-            | statement'''
+    '''segment : while segment
+            | for segment
+            | conditional segment
+            | statement ';' segment
+            | declaration ';' segment 
+            | '''
+    if(len(p) > 2):
+        if(p[2] == ';'):
+            p[2] = p[3]
+        p[0] = (p[1],) + p[2]
+    else:
+        p[0] = ()
+
+def p_declaration(p):
+    '''declaration : declareWithVal
+                |   declareVar
+                |   assign'''
     p[0] = p[1]
 
-##  Boolean Declaration 
-def p_statement_declare_bool(p):
-    '''statement : BOOLEAN NAME is_assign'''
-    if(p[3] == "true"):
-        names[p[2]] = {"type": "BOOLEAN", "value": True}
-    else: 
-        names[p[2]] = {"type": "BOOLEAN", "value": False}
+def p_declare(p):
+    '''declareWithVal : dataType NAME '=' expression '''
+    p[0] = ('declaration', p[1], p[2], p[4])
+    names[p[2]] = p[4]
 
-def p_statement_declare_str(p):
-    '''statement : STRING NAME is_assign'''
-    names[p[2]] = {"type": "STRING", "value": p[3]}
-    
+def p_declarevar(p):
+    '''declareVar : dataType NAME'''
+    p[0] = ('declaration', p[1], p[2]) 
+    names[p[2]] = ''
 
+def p_assign(p):
+    '''assign : NAME '=' expression '''
+    p[0] = ('declaration',p[1],p[3])
+    names[p[1]] = p[3]
 
-def p_statement_declare_int(p):
-    '''statement : INTDEC NAME is_assign
-    '''
-    print("declare_int", p[3])
-    if (type(p[3]) == int):
-        names[p[2]] = {"type": "INT", "value": p[3]}
-    else: 
-        print("No se le puede asignar ese valor a un int")
-
-def p_statement_declare_float(p):
-    'statement : FLOATDEC NAME is_assign'
-    names[p[2]] = {"type": "FLOAT", "value": p[3]}
-
-
-def p_is_assign(p):
-    '''is_assign : "=" expression
-                | '''
-    print("is_assign")
-    p[0] = 0
-    if (len(p) > 2):
-        
-        p[0] = p[2]
+def p_dataType(p):
+    '''dataType : INTDEC
+                | FLOATDEC
+                | BOOLEAN
+                | STRING'''
+    p[0] = p[1]
 
 def p_statement_print(p):
     '''statement : PRINT '(' expression ')' '''
-    print(p[3])
-
-def p_statement_assign(p):
-    'statement : NAME "=" expression'
-    if p[1] not in names:
-        print("You must declare a variable before using it")
-    else:
-        names[p[1]]["value"] = p[3]
+    p[0] = ('print',p[3])
 
 def p_expression_binop_comparison(p):
     '''expression : expression '+' expression
@@ -163,128 +142,20 @@ def p_expression_binop_comparison(p):
                   | expression '*' expression
                   | expression '/' expression
                   | expression '^' expression
-                  | expression LT expression
-                  | expression GT expression
-                  | expression EQUAL expression
-                  | expression NOTEQUAL expression
-                  | expression GOEQUAL expression
-                  | expression LOEQUAL expression
-                  | expression AND expression
-                  | expression OR expression
                   '''
-    print(type(p[1]),type(p[3]))
-    print((p[1]),(p[3]))
     if p[2] == '+':
-        if(type(p[1]) != type(p[3])):
-            if(type(p[1]) == str):
-                p[0] = p[1] + str(p[3])
-            elif(type(p[3]) == str):
-                p[0] = str(p[1]) + p[3]
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) + (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] + float(p[3])     
-        else: 
-            p[0] = p[1] + p[3]
+        p[0] = ('operation',p[1],'+',p[3])
     elif p[2] == '-':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) - (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] - float(p[3])   
-        else:
-            if ((type(p[1]) != float) | (type(p[3]) != float) | (type(p[1]) != int) | (type(p[3]) != int)):
-               print("Operation not available for these data types")
-            else:
-                 p[0] = p[1] - p[3]
+        p[0] = ('operation',p[1],'-',p[3])
     elif p[2] == '*':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) * (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] * float(p[3])   
-        else:
-            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
-               print("Operation not available for these data types")
-            else:
-                 p[0] = p[1] * p[3]
+        p[0] = ('operation',p[1],'*',p[3])
     elif p[2] == '/':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) / (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] / float(p[3])   
-        else:
-            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
-               print("Operation not available for these data types")
-            else:
-                 p[0] = p[1] / p[3]
+        p[0] = ('operation',p[1],'/',p[3])
     elif p[2] == '^':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) ** (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] ** float(p[3])   
-        else: 
-            if (((type(p[1]) != float) & (type(p[3]) != float)) & ((type(p[1]) != int) & (type(p[3]) != int))):
-               print("Operation not available for these data types")
-            else:
-                 p[0] = p[1] ** p[3]
-    elif p[2] == '<':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) < (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] < float(p[3])   
-        else:
-            p[0] = p[1] < p[3]
-    elif p[2] == '>':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) > (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] > float(p[3])   
-        else:
-            p[0] = p[1] > p[3]
-    elif p[2] == '<=':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) <= (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] <= float(p[3])   
-        else:
-            p[0] = p[1] <= p[3]
-    elif p[2] == '>=':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) >= (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] >= float(p[3])   
-        else:
-            p[0] = p[1] >= p[3]
-    elif p[2] == '==':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) == (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] == float(p[3])   
-        else:
-            p[0] = p[1] == p[3]
-    elif p[2] == '!=':
-        if(type(p[1]) != type(p[3])):
-            if((type(p[1]) != float) & (type(p[3]) == float)):
-                p[0] =  float(p[1]) != (p[3])
-            elif((type(p[1]) == float) & (type(p[3]) != float)):
-                p[0] =  p[1] != float(p[3])   
-        else:
-            p[0] = p[1] != p[3]
-    elif p[2] == 'and':
-        p[0] = (p[1] & p[3])
-    elif p[2] == 'or':
-        p[0] = (p[1] | p[3])   
+        p[0] = ('operation',p[1],'^',p[3]) 
 
 def p_logic_expressions(p):
-    '''logic_expression : expression LT expression
+    '''expression : expression LT expression
                   | expression GT expression
                   | expression EQUAL expression
                   | expression NOTEQUAL expression
@@ -293,21 +164,21 @@ def p_logic_expressions(p):
                   | expression AND expression
                   | expression OR expression'''
     if p[2] == '<':
-        p[0] = p[1] < p[3]
+        p[0] = ('comparison', p[1], '<' ,p[3])
     elif p[2] == '>':
-        p[0] = p[1] > p[3]
+        p[0] = ('comparison', p[1], '>' ,p[3])
     elif p[2] == '==':
-        p[0] = (p[1] == p[3])
+        p[0] = ('comparison', p[1], '==' ,p[3])
     elif p[2] == '<=':
-        p[0] = (p[1] <= p[3])
+        p[0] = ('comparison', p[1], '<=' ,p[3])
     elif p[2] == '>=':
-        p[0] = (p[1] >= p[3])
+        p[0] = ('comparison', p[1], '>=' ,p[3])
     elif p[2] == '!=':
-        p[0] = (p[1] != p[3])
+        p[0] = ('comparison', p[1], '!=' ,p[3])
     elif p[2] == 'and':
-        p[0] = (p[1] & p[3])
+        p[0] = ('comparison', p[1], 'and' ,p[3])
     elif p[2] == 'or':
-        p[0] = (p[1] | p[3])
+        p[0] = ('comparison', p[1], 'or' ,p[3])
 
 def p_expression_uminus(p):
     "expression : '-' expression %prec UMINUS"
@@ -320,52 +191,38 @@ def p_expression_group(p):
 def p_expression_val(p):
     '''expression : INUMBER
                 | FNUMBER
-                | BOOLEAN '''
+                | BOOLEAN
+                | STRING_V  '''
     p[0] = p[1]
 
-def p_expression_string(p):
-    '''expression : STRING '''
-    p[0] = p[1][1:len(p[1])-1]
-
 def p_expression_name(p):
-    "expression : NAME "
-    try:
-        p[0] = names[p[1]]["value"]
-    except LookupError:
-        print("Undefined name '%s'" % p[1])
-        p[0] = 0
+    '''expression : NAME'''
+    p[0] = names[p[1]]
 
-#========== Conditional Statements ================
 def p_if(p):
-    '''conditional : IF '(' logic_expression ')' '{' s '}' elif else '''
-    print("p_if",(p[3] == True))
-    if p[3] == True:
-        p[0] = p[6]
-    else:
-        p[0] = p[8]
-
+    '''conditional : IF '(' expression ')' '{' segment '}' elif else '''
+    p[0] = ('if', p[3], p[6], p[8], p[9])
 
 def p_elif(p):
-    '''elif : ELIF '(' logic_expression ')' '{' s '}' else
-        | '''
-    print("p_elif")
-    if(len(p) >4):
-        if(p[3] == True):
-            p[0] = p[6]
-        else:
-            p[0] = p[8]
-    else:
-        p[0] = ()
+    '''elif : ELIF '(' expression ')' '{' segment '}' elif
+        |'''
+
+    if len(p) > 2:
+        p[0] = ('elif', p[3],p[6],p[8])
+
 def p_else(p): 
-    '''else : ELSE '{' s '}' 
+    '''else : ELSE '{' segment '}' 
         | ''' 
-    print("p_else")
     if(len(p) > 1):
         p[0] = p[3]
-    else:
-        p[0] = ()
-    
-#========================================
+
+def p_for(p):
+    '''for : FOR '(' declareWithVal ';' expression ';' assign ')' '{' segment '}' '''
+    p[0] = ('forloop', p[3], p[5], p[7],p[10])
+
+def p_while(p):
+    '''while : WHILE '(' expression ')' '{' segment '}' '''
+    p[0] = ('whileloop', p[3]. p[6])
 
 def p_error(p):
     if p:
@@ -374,11 +231,15 @@ def p_error(p):
     else:
         print("Syntax error at EOF")
 
-
-parser = yacc.yacc(debug=True)
+parser = yacc.yacc()
 
 inputFile = open('input.txt', 'r')
-lines = inputFile.readlines()
-for line in lines:
+lines = inputFile.read()
+
+yacc.parse(lines)
+
+code = []
+
+for line in abstractTree:
     print(line)
-    yacc.parse(line)
+
