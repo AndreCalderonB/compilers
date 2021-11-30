@@ -273,20 +273,50 @@ def assign(entry):
 def expression(entry):
     line = ""
     lineResult=""
+
+
     if(entry[0] == 'comparison'):
+        arg1 = ""
+        arg2 = ""
+       
         if(type(entry[1]) != tuple):
             line += str(entry[1])
+            arg1 = (entry[1])
         else:
             line += str(expression(entry[1]))
+            arg1 = (expression(entry[1]))
 
         line += " " + entry[2] + " "
 
         if(type(entry[3]) != tuple):
             line += str(entry[3])
+            arg2 = (entry[3])
         else:
             line += str(expression(entry[3]))
+            arg2 = (expression(entry[3]))
 
+        res = ""
+
+        if(entry[2] == "=="):
+            res = arg1 == arg2 
+        if(entry[2] == "!="):
+            res = arg1 != arg2 
+        elif(entry[2] == "<"):
+            res = arg1 < arg2 
+        elif(entry[2] == ">"):
+            res = arg1 > arg2 
+        elif(entry[2] == "<="):
+            res = arg1 <= arg2 
+        elif(entry[2] == ">="):
+            res = arg1 >= arg2 
+        elif(entry[2] == "and"):
+            res = arg1 & arg2 
+        elif(entry[2] == "or"):
+            res = arg1 | arg2
+        
         code.append(line)
+
+        return res
     else:
         if(type(entry[1]) != tuple):
             if((type(entry[1]) == float) | (type(entry[1]) == int)):
