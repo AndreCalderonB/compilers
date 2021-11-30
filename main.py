@@ -112,7 +112,7 @@ def p_declaration(p):
 
 def p_declare(p):
     '''declareWithVal : dataType NAME '=' expression '''
-    p[0] = ('declaration', p[1], p[2], p[4])
+    p[0] = ('complete_declaration', p[1], p[2], p[4])
     names[p[2]] = p[4]
 
 def p_declarevar(p):
@@ -122,7 +122,7 @@ def p_declarevar(p):
 
 def p_assign(p):
     '''assign : NAME '=' expression '''
-    p[0] = ('declaration',p[1],p[3])
+    p[0] = ('assign',p[1],p[3])
     names[p[1]] = p[3]
 
 def p_dataType(p):
@@ -222,7 +222,7 @@ def p_for(p):
 
 def p_while(p):
     '''while : WHILE '(' expression ')' '{' segment '}' '''
-    p[0] = ('whileloop', p[3]. p[6])
+    p[0] = ('whileloop', p[3], p[6])
 
 def p_error(p):
     if p:
@@ -243,3 +243,209 @@ code = []
 for line in abstractTree:
     print(line)
 
+
+def complete_declare(entry):
+    line = "" + entry[2] + "="
+    if((entry[1] == 'int') | (entry[1] == 'float')):
+        if(type(entry[3]) != tuple):
+            line += str(float(entry[3]))
+        else:  
+            line += str(expression(entry[3]))
+    elif(entry[1] == 'string'):
+        if(type(entry[3]) != tuple):
+            line += entry[3]
+        else:  
+            line += str(expression(entry[3]))
+    code.append(line)
+
+def declare(entry):
+    line = "" + entry[1] + " " + entry[2]
+    code.append(line)
+
+def assign(entry):
+    line = " " + entry[1] + "="
+    if(type(entry[2]) != tuple):
+        line += str(entry[2])
+    else:
+        line += str(expression(entry[2]))
+    code.append(line)
+
+def expression(entry):
+    line = ""
+    lineResult=""
+    if(entry[0] == 'comparison'):
+        if(type(entry[1]) != tuple):
+            line += str(entry[1])
+        else:
+            line += str(expression(entry[1]))
+
+        line += " " + entry[2] + " "
+
+        if(type(entry[3]) != tuple):
+            line += str(entry[3])
+        else:
+            line += str(expression(entry[3]))
+
+        code.append(line)
+    else:
+        if(type(entry[1]) != tuple):
+            if((type(entry[1]) == float) | (type(entry[1]) == int)):
+                lineResult = entry[1]
+            line += str(entry[1])
+        else:
+                lineResult = expression(entry[1])
+                line += str(lineResult)
+
+        if(entry[2] == '+'):
+                line += " + "
+        elif(entry[2] == '-'):
+            line += " - "
+        elif(entry[2] == '*'):
+            line += " * "
+        elif(entry[2] == '/'):
+            line += " / "
+        elif(entry[2] == '^'):
+            line += " ^ "
+
+        if(type(entry[3]) != tuple):
+            notString = (type(entry[3]) != str)
+
+            if((entry[2] == '+') & notString):
+                if(type(lineResult != str)):
+                    lineResult += entry[3]
+                else:
+                    lineResult = entry[3]
+
+            if((entry[2] == '-') & notString):
+                if(type(lineResult != str)):
+                    lineResult -= entry[3]
+                else:
+                    lineResult = entry[3]
+
+            if((entry[2] == '*') & notString):
+                if(type(lineResult != str)):
+                    lineResult *= entry[3]
+                else:
+                    lineResult = entry[3]
+
+            if((entry[2] == '/') & notString):
+                if(type(lineResult != str)):
+                    lineResult /= entry[3]
+                else:
+                    lineResult = entry[3]
+
+            if((entry[2] == '^') & notString):
+                if(type(lineResult != str)):
+                    lineResult **= entry[3]
+                else:
+                    lineResult = entry[3]
+
+            line += str(entry[3])
+        elif(type(entry[3]) == str):
+            line += entry[3]
+            code.append(line)
+            return line
+        else:
+            result = 0
+            if(entry[2] == '+'):
+                lineResult += expression(entry[3])
+                result = expression(entry[3])
+            elif(entry[2] == '-'):
+                lineResult -= expression(entry[3])
+                result = expression(entry[3])
+            elif(entry[2] == '*'):
+                lineResult *= expression(entry[3])
+                result = expression(entry[3])
+            elif(entry[2] == '/'):
+                lineResult /= expression(entry[3])
+                result = expression(entry[3])
+            elif(entry[2] == '^'):
+                lineResult **= expression(entry[3])
+                result = expression(entry[3])
+
+            line += str(result)
+
+        code.append(line)
+
+        return lineResult
+
+def print_func(entry):
+    line = ""
+    if(type(entry[1]) != tuple):
+        line = entry[0] + " = " + str(entry[1])
+    else:
+        line = entry[0] + " = " + str(expression(entry[1]))
+    code.append(line)
+
+def if_func(entry):
+    code.append("if")
+    expression(entry[1])
+
+    for segment in entry[2]:
+        run(segment)
+
+    if(entry[3]):
+        elif_func(entry[3])
+
+    if(entry[4]):
+        else_func(entry[4])
+    code.append("endif")
+
+def elif_func(entry):
+    code.append("elif")
+    expression(entry[1])
+    for segment in entry[2]:
+        run(segment)
+
+def else_func(entry):
+    code.append("else")
+    for segment in entry[2]:
+        run(segment)
+
+def for_func(entry):
+
+    code.append("for")
+    run(entry[1])
+    run(entry[2])
+    run(entry[3])
+
+    for segment in entry[4]:
+        run(segment)
+
+    code.append("endfor")
+
+def while_func(entry):
+    code.append("while")
+    expression(entry[1])
+    
+    for segment in entry[2]:
+        run(segment)
+    code.append("endwhile")
+
+def run(entry):
+    if(entry[0] == 'complete_declaration'):
+        complete_declare(entry)
+    elif(entry[0] == 'declaration'):
+        declare(entry)
+    elif(entry[0] == 'assign'):
+        assign(entry)
+    elif(entry[0] == 'operation'):
+        expression(entry)
+    elif(entry[0] == 'comparison'):
+        expression(entry)
+    elif(entry[0] == 'print'):
+       print_func(entry)
+    elif(entry[0] == 'if'):
+        if_func(entry)
+    elif(entry[0] == 'forloop'):
+        for_func(entry)
+    elif(entry[0] == 'whileloop'):
+        while_func(entry)
+
+for entry in abstractTree:
+    run(entry)
+
+print("==========================================")
+
+for line in code:
+    print(line)
